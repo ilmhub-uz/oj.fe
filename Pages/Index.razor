@@ -1,4 +1,12 @@
-﻿@page "/"
+﻿@inject HttpClient Http
+@using System.Text.Json
+@using oj.fe.Models.Posts
+@page "/"
+
+@foreach(var model in Models.Data.Results)
+{
+    <oj.fe.Components.PostComponent Model="@model"/>
+}
 
 <MudText Typo="Typo.h6">MudBlazor is @Text</MudText>
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">@ButtonText</MudButton>
@@ -12,5 +20,12 @@
         ButtonClicked += 1;
         Text = $"Awesome x {ButtonClicked}";
         ButtonText = "Click Me Again";
+    }
+
+    public PostsModel Models = new PostsModel(){Data = new() { Results = new()}};
+    protected override async Task OnInitializedAsync()
+    {
+        Models = await Http.GetFromJsonAsync<PostsModel>("http://ojilmhub.uz/api/announcement?offset=0&limit=10");
+        Console.WriteLine($"{JsonSerializer.Serialize(Models.Data.Results)}");
     }
 }
