@@ -1,5 +1,6 @@
-﻿@page "/"
-
+﻿@inherits ComponentBase
+@page "/"
+<button class="btn btn-primary">bootstrap</button>
 <MudText Typo="Typo.h6">MudBlazor is @Text</MudText>
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">@ButtonText</MudButton>
 @code {

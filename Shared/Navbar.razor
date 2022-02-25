@@ -1,0 +1,106 @@
+@inject NavigationManager NavigationManager
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Ilmhub OJ</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+        <a class="nav-link active" @onclick="() => OnHomeClicked()" aria-current="page"><i class="bi bi-house-fill"></i> Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" @onclick="() => OnProblemsClicked()"><i class="bi bi-grid-3x3-gap-fill"></i> Problems</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" @onclick="() => OnContestsClicked()"><i class="bi bi-trophy"></i> Contests</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" @onclick="() => OnStatusClicked()"><i class="bi bi-activity"></i> Status</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <i class="bi bi-bar-chart-fill"></i> Rank
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" @onclick="() => OnACMRankClicked()">Acm Rank</a></li>
+            <li><a class="dropdown-item" @onclick="() => OnOIRankClicked()">Oi Rank</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            About
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" @onclick="() => OnJudgerClicked()">Judger</a></li>
+            <li><a class="dropdown-item" @onclick="() => OnFaqClicked()">FAQ</a></li>
+          </ul>
+        </li>
+        
+      </ul>
+      <form class="d-flex">
+        
+        <button class="btn btn-outline-success" @onclick="() => OnLoginClicked()">Login</button>
+        <button class="btn btn-outline-success"  @onclick="() => OnSignUpClicked()">Sign Up</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+@code {
+    private bool _menuVisible = false;
+    
+    private void OnToggleMenuClicked()
+    {
+        _menuVisible = !_menuVisible;
+    }
+    private void OnHomeClicked()
+    {
+        NavigationManager.NavigateTo("/homepage");
+        
+    }
+    private void OnProblemsClicked()
+    {
+        NavigationManager.NavigateTo("/problems");
+    }
+    private void OnContestsClicked()
+    {
+        NavigationManager.NavigateTo("/contests");
+    }
+    private void OnStatusClicked()
+    {
+        NavigationManager.NavigateTo("/status");
+    }
+    
+    private void OnACMRankClicked()
+    {
+        NavigationManager.NavigateTo("/acmrank");
+    }
+    private void OnOIRankClicked()
+    {
+        NavigationManager.NavigateTo("/oirank");
+    }
+    private void OnJudgerClicked()
+    {
+        NavigationManager.NavigateTo("/judger");
+    }
+    private void OnFaqClicked()
+    {
+        NavigationManager.NavigateTo("/faq");
+    }
+    
+    private void OnLoginClicked()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+    private void OnSignUpClicked()
+    {
+        NavigationManager.NavigateTo("/signup");
+    }
+
+    
+}
