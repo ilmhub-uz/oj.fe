@@ -1,0 +1,18 @@
+@using Newtonsoft.Json
+
+@if(Model.Data!=null){
+@foreach (var tag in Model.Data)
+{
+    <a href="#">@tag.Name</a>
+}
+}
+
+@code {
+    [Parameter]
+    public oj.fe.Models.Tags.TagsModel Model { get; set; } = new() { Data = new List<Models.Tags.TagModel>() { new Models.Tags.TagModel() } };
+    
+    protected override void OnParametersSet()
+    {
+        Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
+    }
+}
