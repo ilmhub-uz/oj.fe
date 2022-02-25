@@ -45,3 +45,9 @@ a, .btn-link {
     width: 100%;
     z-index: 1000;
 }
+.ivu-modal-header {
+    border-bottom: 1px solid #e9eaec;
+    padding: 14px 16px;
+    line-height: 1;
+    text-align: left;
+}
