@@ -1,4 +1,8 @@
-﻿@page "/"
+﻿@inject HttpClient Http
+@page "/"
+@using Models.Tags
+@using Newtonsoft.Json
+@using oj.fe.Components
 
 <link href="css/site.css" rel="stylesheet">
 
@@ -15,14 +19,21 @@
         </div>
         <div class="ivu-card-body" style="padding: 10px;">
 
-            @for (int i = 0; i < Tags.Count(); i++)
+            @if(Tags!=null)
+            {
+                @foreach (var tag in Tags.Data)
+                {
+                    <a href="#">@tag.Name</a>
+                }
+            }
+            @* @for (int i = 0; i < Tags.Count(); i++)
             {
                 <div class="panel-body">
                     <button data-v-24595e44="" type="button" class="tag-btn ivu-btn ivu-btn-ghost ivu-btn-circle">
                         <a href="#">@Tags[i] &nbsp;&nbsp;</a>
                     </button>               
                 </div>
-            }
+            } *@
             <div class="panel-body">                            
                 <button data-v-24595e44="" type="button" class="ivu-btn ivu-btn-long" id="pick-one">
                     <span><i data-v-24595e44="" class="ivu-icon ivu-icon-shuffle"></i>Pick one</span>
@@ -32,10 +43,21 @@
     </div>
 </div>
 
-
+<TagsComponent Model="@Tags"/>
 @code {
+
+    public oj.fe.Models.Tags.TagsModel Tags { get; set; } = new();
     
-    public string[] Tags = {"qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu",
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
+        StateHasChanged();
+    }
+    
+    @* public string[] Tags = {"qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu",
 "iktyc","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc", "awdcasc",
 "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw",
 "yuikyu","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc",
@@ -146,7 +168,7 @@
 "iktyc","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc", "awdcasc",
 "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw",
 "yuikyu","qw","wer","er", "dcwc", "awdcasc", "dwcscc", "wdcwcvw", "wefwfvw", "yuikyu","qw","wer","er", "dcwc",
-"awdcasc"};
+"awdcasc"}; *@
 }
 
 
