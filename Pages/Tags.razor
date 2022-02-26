@@ -1,0 +1,63 @@
+@inject HttpClient Http
+
+@page "/tags"
+
+@using Models.Tags
+@using Newtonsoft.Json
+@using oj.fe.Components
+
+
+
+<link href="css/site.css" rel="stylesheet">
+
+<div data-v-24595e44="" class="ivu-col ivu-col-span-5 div-height" style="width: 100%; padding-left: 9px;
+    padding-right: 9px;">
+    <div data-v-24595e44="" class="ivu-card ivu-card-bordered">
+        <div class="ivu-card-head">
+            <div class="panel-title">
+                <div data-v-24595e44="" class="taglist-title">Tags</div>
+            </div>
+        </div>
+        <div class="ivu-card-extra">
+            <div class="panel-extra"></div>
+        </div>
+        <div class="ivu-card-body" style="padding: 10px;">
+
+            @* @if(Tagss.Data!=null)
+            {
+                @foreach (var tag in Tagss.Data)
+                {
+                    <a href="#" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                }
+            } *@
+            @if(Tagss != null)
+            {
+                <TagsComponent Model="@Tagss"></TagsComponent>
+            }
+            
+            <div class="panel-body">  
+                @* <a href="#" class="btn btn-outline-secondary m-2" style="border-radius: 20px; mx-5;">Pick one</a>                           *@
+                <button data-v-24595e44="" type="button" class="ivu-btn ivu-btn-long" id="pick-one">
+                    <span><i data-v-24595e44="" class="ivu-icon ivu-icon-shuffle"> </i>Pick one</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    public oj.fe.Models.Tags.TagsModel Tagss { get; set; } = new();
+        
+    protected override async Task OnInitializedAsync()
+    {
+        Tagss = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+
+        var httpResponse = await Http.GetAsync("http://oj.ilmhub.uz/api/problem?paging=true&offset=0&limit=10&page=1");
+        var jsonString = await httpResponse.Content.ReadAsStringAsync();
+        
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
+        // Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
+    }
+}

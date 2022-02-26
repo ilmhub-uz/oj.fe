@@ -3,7 +3,7 @@
 @if(Model.Data!=null){
 @foreach (var tag in Model.Data)
 {
-    <a href="#">@tag.Name</a>
+    <a href="#" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
 }
 }
 
@@ -13,6 +13,6 @@
     
     protected override void OnParametersSet()
     {
-        Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
     }
 }
