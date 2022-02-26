@@ -6,7 +6,7 @@
 @using Newtonsoft.Json
 @using oj.fe.Components
 
-@* <ProblemsGridComponent Model="@ProblemsModel.Data"></ProblemsGridComponent> *@
+@* <ProblemsGridComponenzt Model="@ProblemsModel.Data"></ProblemsGridComponent> *@
 <TagsComponent Model="@Tags"/>
 @code {
     public oj.fe.Models.Tags.TagsModel Tags { get; set; } = new();
@@ -21,6 +21,6 @@
         ProblemsModel = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
 
         // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
-        // Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
+        Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
     }
 }
