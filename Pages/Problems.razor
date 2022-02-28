@@ -1,42 +1,105 @@
-@inject HttpClient Http
-
 @page "/problems"
+@inject HttpClient Http
+@using Models.CustomModels
 @using Models.Problems
-@using Models.Tags
 @using Newtonsoft.Json
-@using oj.fe.Components
+@using System.Globalization
 
-@if(ProblemsModel != null)
-{
-    <ProblemsGridComponent Model="@ProblemsModel.Data"></ProblemsGridComponent>
-}
-@if(Tags != null)
-{
-    <TagsComponent Model="@Tags"></TagsComponent>
-}
+<MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" 
+    Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Title</MudTh>
+        <MudTh>Level</MudTh>
+        <MudTh>Total</MudTh>
+        <MudTh>AC Rate</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Level"><button class="bg-success btn btn-success text-white btn-sm">@context.Level</button></MudTd>
+        <MudTd DataLabel="Total">@context.Total</MudTd>
+        <MudTd DataLabel="AC Rate">@context.ACRate</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
+            SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4"/>
+    </PagerContent>
+</MudTable>
+<div class="row d-flex justify-content-center">
+    <div class="col-sm-4 col-lg-3 col-md-3 m-4" style="align-self: center;">
+        <select @onchange="OnSelectPageSize" class="form-select" aria-label="Default select example">
+            <option selected value="10">10/page</option>
+            <option value="25">25/page</option>
+            <option value="50">50/page</option>
+            <option value="100">100/page</option>
+        </select>
+    </div>
+</div>
+
 @code {
-    public oj.fe.Models.Tags.TagsModel Tags { get; set; } = new();
-    public ProblemsModel ProblemsModel { get; set; } = new() { Data = new() { ProblemModels = new()} };
-    
+    // limit per page
+    private int Limit { get; set; } = 10;
+    // offset problems till nth page
+    private int Offset { get; set; }
+    // page number
+    private int Page { get; set; }
+    // number of pagination items
+    private int PaginationCount = 1;
+    private MudTable<ProblemTableData> _table;
+    // raw API response
+    public ProblemsModel Model { get; set; }
+    // problems model derived from raw API
+    private IEnumerable<ProblemTableData> _elements = new List<ProblemTableData>();
+
     protected override async Task OnInitializedAsync()
     {
-        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
-
-        var httpResponse = await Http.GetAsync("http://oj.ilmhub.uz/api/problem?paging=true&offset=0&limit=10&page=1");
+        await MakeAPICall();
+    }
+    private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
+    {
+        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
         var jsonString = await httpResponse.Content.ReadAsStringAsync();
-        ProblemsModel = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+        Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+        PaginationCount = Model.Data.Total;
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
 
-        var response = await Http.GetAsync("http://oj.ilmhub.uz/api/problem?problem_id=1");
-        var jsonStringres = await response.Content.ReadAsStringAsync();
-        //dto res'ni type'i ProblemData bo'ladi
-        var dtores = JsonConvert.DeserializeObject<ProblemData>(jsonStringres);
-
-        Console.WriteLine($"{JsonConvert.SerializeObject(dtores)}");
-//        Console.WriteLine($"{System.Text.Json.JsonSerializer.Serialize(response)}");
+        _elements = Model.Data.ProblemModels.Select(x => 
+        {
+            return new ProblemTableData()
+            {
+                Id = x._Id,
+                Title = x.Title,
+                Level = x.Difficulty,
+                Total = x.SubmissionNumber,
+                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+            };
+        });
         
-        
+    }
+    private async Task PageChanged(int i)
+    {
+        Page = i;
+        Offset = Limit * (Page - 1);
+        await MakeAPICall(Offset, Limit, Page);
+        StateHasChanged();
+        Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
+    }
+    // 
+    private async Task OnSelectPageSize(ChangeEventArgs e)
+    {        
+        int cap = 10;
+        if(e.Value.ToString() == "10")
+            int.TryParse(e.Value.ToString(), out cap);
+        else if(e.Value.ToString() == "25")
+            int.TryParse(e.Value.ToString(), out cap);
+        else if(e.Value.ToString() == "50")
+            int.TryParse(e.Value.ToString(), out cap);
+        else if(e.Value.ToString() == "100")
+            int.TryParse(e.Value.ToString(), out cap);
+        Limit = cap;
+        Offset = Limit * (Page - 1);
 
-        // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
-        // Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
+        await MakeAPICall(Offset, Limit, Page);
     }
 }
