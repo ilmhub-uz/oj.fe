@@ -1,0 +1,42 @@
+@using Newtonsoft.Json
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="">#</th>
+            <th class="">Title</th>
+            <th class="">Level</th>
+            <th class="">Total</th>
+            <th class="">AC Rate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var model in Model.ProblemModels)
+        {
+            <tr>
+                <td class="">@model.Id</td>
+                <td class="">@model.Title</td>
+                <td class=""><a href="#" class="btn btn-success">@model.Difficulty</a></td>
+                <td class="">@model.AcceptedNumber</td>
+                
+                @if(model.SubmissionNumber != 0)
+                {
+                    <td class="">@(Math.Round(model.AcceptedNumber * 100.0 / model.SubmissionNumber, 2))%</td>
+                }
+                else
+                {
+                    <td class="">0 %</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public oj.fe.Models.Problems.Problems Model { get; set; } = new () { ProblemModels = new() };
+    protected override void OnParametersSet()
+    {
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
+    }
+}
