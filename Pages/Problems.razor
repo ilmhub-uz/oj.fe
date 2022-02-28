@@ -19,8 +19,5 @@
         var httpResponse = await Http.GetAsync("http://oj.ilmhub.uz/api/problem?paging=true&offset=0&limit=10&page=1");
         var jsonString = await httpResponse.Content.ReadAsStringAsync();
         ProblemsModel = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-
-        // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
-        // Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
     }
 }

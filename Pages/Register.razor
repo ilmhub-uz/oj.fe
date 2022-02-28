@@ -25,20 +25,15 @@
                                 @bind-Value="model.Password2" For="@(() => model.Password2)" InputType="InputType.Password"/>
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">Register</MudButton>
+                    <div class="d-flex align-center justify-space-between mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" FullWidth="false">Register</MudButton>
+                    </div>
                 </MudCardActions>
                 <MudCardActions>
                     <MudLink Typo="Typo.body2" Class="pa-2 mx-2" @onclick="NavToLoginModalCom">Already registed? Login now!</MudLink>
-
                 </MudCardActions>
             </MudCard>
         </MudItem>
-
-        @* <MudItem xs="12">
-            <MudText Typo="Typo.body2" Align="Align.Center">
-                Fill out the form correctly to see the success message.
-            </MudText>
-        </MudItem> *@
     </MudGrid>
     </EditForm>
 </div>
@@ -76,6 +71,6 @@
 
     private void NavToLoginModalCom()
     {
-        NavigationManager.NavigateTo("");
+        NavigationManager.NavigateTo("/login");
     }
 } 

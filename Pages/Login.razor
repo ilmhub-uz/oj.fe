@@ -1,3 +1,4 @@
+@page "/login"
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
@@ -18,7 +19,11 @@
                     <MudTextField Label="Password" Class="mt-3"
                                 @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password"/>
                 </MudCardContent>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">Login</MudButton>
+                <MudCardActions>
+                    <div class="d-flex align-center justify-space-between mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" FullWidth="false">Login</MudButton>
+                    </div>
+                </MudCardActions>
                 <MudPaper Class="d-flex justify-space-between py-2 px-1 mt-6">
                     <MudLink Typo="Typo.body2" Class="pa-2 mx-2" @onclick="NavToRegModalCom">No account? Register now!</MudLink>
                     <MudLink  Typo="Typo.body2" Class="pa-2 mx-2">Forget Password</MudLink>
