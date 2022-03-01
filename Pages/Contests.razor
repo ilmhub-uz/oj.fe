@@ -1,2 +1,21 @@
 @inherits ComponentBase
+@inject HttpClient Http
+@using Newtonsoft.Json
+@using oj.fe.Models.Contests
 @page "/contests"
+
+
+@code{
+
+    public ContestsModel Model { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetAsync($"http://oj.ilmhub.uz/api/contests?offset=0&limit=10");
+        var jsonStringres = await response.Content.ReadAsStringAsync();
+        Model = JsonConvert.DeserializeObject<ContestsModel>(jsonStringres);
+
+        @* Console.WriteLine($"{JsonConvert.SerializeObject(Model)} keldi"); *@
+    }
+
+}
