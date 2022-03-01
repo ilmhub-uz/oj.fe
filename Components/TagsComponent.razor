@@ -15,7 +15,7 @@
                 
                 @foreach (var tag in Model.Data)
                 {
-                    <a href="/problems/@tag.Name" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                    <a href="/problems/tag/@tag.Name" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
                 }
             }
         </div>
@@ -24,5 +24,10 @@
 
 @code {
     [Parameter]
-    public oj.fe.Models.Tags.TagsModel Model { get; set; } = new() { Data = new() };
+    public oj.fe.Models.Tags.TagsModel Model { get; set; } = new() { Data = new List<Models.Tags.TagModel>() { new Models.Tags.TagModel() } };
+    
+    protected override void OnParametersSet()
+    {
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
+    }
 }
