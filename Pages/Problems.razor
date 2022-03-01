@@ -1,0 +1,18 @@
+@inject HttpClient Http
+
+@page "/problems"
+@using Models.Tags
+@using oj.fe.Components
+
+@if(Tags != null)
+{
+    <TagsComponent Model="@Tags"></TagsComponent>
+}
+@code {
+    public TagsModel Tags { get; set; } = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+    }
+}

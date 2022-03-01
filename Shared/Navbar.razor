@@ -17,7 +17,7 @@
           <a class="nav-link" @onclick="() => OnProblemsClicked()"><i class="bi bi-grid-3x3-gap-fill"></i> Problems</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" @onclick="() => OnContestsClicked()"><i class="bi bi-trophy"></i> Contests</a>
+          <a class="nav-link" @onclick="() => OnContestsClicked()"><i class="bi bi-trophy-fill"></i> Contests</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" @onclick="() => OnStatusClicked()"><i class="bi bi-activity"></i> Status</a>
@@ -44,8 +44,8 @@
       </ul>
       <form class="d-flex">
         
-        <button class="btn btn-outline-success" @onclick="() => OnLoginClicked()">Login</button>
-        <button class="btn btn-outline-success"  @onclick="() => OnSignUpClicked()">Sign Up</button>
+        <button class="btn btn-outline-success mx-2" @onclick="() => OnLoginClicked()">Login</button>
+        <button class="btn btn-outline-success mx-2"  @onclick="() => OnSignUpClicked()">Sign Up</button>
       </form>
     </div>
   </div>
@@ -99,7 +99,7 @@
     }
     private void OnSignUpClicked()
     {
-        NavigationManager.NavigateTo("/signup");
+        NavigationManager.NavigateTo("/register");
     }
 
     
