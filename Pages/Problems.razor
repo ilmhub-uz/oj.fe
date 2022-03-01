@@ -1,26 +1,18 @@
 @inject HttpClient Http
 
 @page "/problems"
-@using Models.Problems
 @using Models.Tags
-@using Newtonsoft.Json
 @using oj.fe.Components
 
-@* <ProblemsGridComponent Model="@ProblemsModel.Data"></ProblemsGridComponent> *@
-<TagsComponent Model="@Tags"/>
+@if(Tags != null)
+{
+    <TagsComponent Model="@Tags"></TagsComponent>
+}
 @code {
-    public oj.fe.Models.Tags.TagsModel Tags { get; set; } = new();
-    public ProblemsModel ProblemsModel { get; set; } = new() { Data = new() { ProblemModels = new()} };
+    public TagsModel Tags { get; set; } = new();
     
     protected override async Task OnInitializedAsync()
     {
         Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
-
-        var httpResponse = await Http.GetAsync("http://oj.ilmhub.uz/api/problem?paging=true&offset=0&limit=10&page=1");
-        var jsonString = await httpResponse.Content.ReadAsStringAsync();
-        ProblemsModel = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-
-        // Console.WriteLine($"{JsonConvert.SerializeObject(Tags)}");
-        // Console.WriteLine($"{JsonConvert.SerializeObject(ProblemsModel)}");
     }
 }
