@@ -17,7 +17,21 @@
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Title">@context.Title</MudTd>
-        <MudTd DataLabel="Level"><button class="bg-success btn btn-success text-white btn-sm">@context.Level</button></MudTd>
+        @if(context.Level == "Low")
+        {
+            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-success text-white btn-sm" 
+                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+        }
+        else if(context.Level == "Mid")
+        {
+            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-primary text-white btn-sm" 
+                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+        }
+        else
+        {
+            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-warning text-white btn-sm" 
+                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+        }
         <MudTd DataLabel="Total">@context.Total</MudTd>
         <MudTd DataLabel="AC Rate">@context.ACRate</MudTd>
     </RowTemplate>
@@ -26,7 +40,7 @@
             SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4"/>
     </PagerContent>
 </MudTable>
-<div class="row d-flex justify-content-center">
+@* <div class="row d-flex justify-content-center">
     <div class="col-sm-4 col-lg-3 col-md-3 m-4" style="align-self: center;">
         <select @onchange="OnSelectPageSize" class="form-select" aria-label="Default select example">
             <option selected value="10">10/page</option>
@@ -35,7 +49,7 @@
             <option value="100">100/page</option>
         </select>
     </div>
-</div>
+</div> *@
 
 @code {
     // limit per page
@@ -86,20 +100,20 @@
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
     // 
-    private async Task OnSelectPageSize(ChangeEventArgs e)
-    {        
-        int cap = 10;
-        if(e.Value.ToString() == "10")
-            int.TryParse(e.Value.ToString(), out cap);
-        else if(e.Value.ToString() == "25")
-            int.TryParse(e.Value.ToString(), out cap);
-        else if(e.Value.ToString() == "50")
-            int.TryParse(e.Value.ToString(), out cap);
-        else if(e.Value.ToString() == "100")
-            int.TryParse(e.Value.ToString(), out cap);
-        Limit = cap;
-        Offset = Limit * (Page - 1);
-
-        await MakeAPICall(Offset, Limit, Page);
-    }
+    // private async Task OnSelectPageSize(ChangeEventArgs e)
+    // {        
+    //     int cap = 10;
+    //     if(e.Value.ToString() == "10")
+    //         int.TryParse(e.Value.ToString(), out cap);
+    //     else if(e.Value.ToString() == "25")
+    //         int.TryParse(e.Value.ToString(), out cap);
+    //     else if(e.Value.ToString() == "50")
+    //         int.TryParse(e.Value.ToString(), out cap);
+    //     else if(e.Value.ToString() == "100")
+    //         int.TryParse(e.Value.ToString(), out cap);
+    //     Limit = cap;
+    //     Offset = Limit * (Page - 1);
+// 
+    //     await MakeAPICall(Offset, Limit, Page);
+    // }
 }
