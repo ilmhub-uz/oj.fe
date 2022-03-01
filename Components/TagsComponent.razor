@@ -1,11 +1,26 @@
-@using Newtonsoft.Json
-
-@if(Model.Data!=null){
-@foreach (var tag in Model.Data)
-{
-    <a href="#" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
-}
-}
+<div data-v-24595e44="" class="ivu-col ivu-col-span-5 div-height" style="width: 100%; padding-left: 9px;
+    padding-right: 9px;">
+    <div data-v-24595e44="" class="ivu-card ivu-card-bordered">
+        <div class="ivu-card-head">
+            <div class="panel-title">
+                <div data-v-24595e44="" class="taglist-title">Tags</div>
+            </div>
+        </div>
+        <div class="ivu-card-extra">
+            <div class="panel-extra"></div>
+        </div>
+        <div class="ivu-card-body" style="padding: 10px;">
+            @if(Model != null && Model.Data != null && !Model.Data.Any(i => i == null))
+            {
+                
+                @foreach (var tag in Model.Data)
+                {
+                    <a href="/problems/tag/@tag.Name" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                }
+            }
+        </div>
+    </div>
+</div>
 
 @code {
     [Parameter]

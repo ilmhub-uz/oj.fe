@@ -1,61 +1,76 @@
 @page "/problems"
-@inject HttpClient Http
+
+@* these two page implementations have not been completed yet. *@
+@page "/problems/tag/{TagParameter}"
+@page "/problems/level/{LevelParameter}"
 @using Models.CustomModels
+@using Models.Tags
 @using Models.Problems
 @using Newtonsoft.Json
 @using System.Globalization
+@using oj.fe.Components
+@inject HttpClient Http
 
-<MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" 
-    Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh>Title</MudTh>
-        <MudTh>Level</MudTh>
-        <MudTh>Total</MudTh>
-        <MudTh>AC Rate</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Id">@context.Id</MudTd>
-        <MudTd DataLabel="Title">@context.Title</MudTd>
-        @if(context.Level == "Low")
-        {
-            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-success text-white btn-sm" 
-                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
-        }
-        else if(context.Level == "Mid")
-        {
-            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-primary text-white btn-sm" 
-                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
-        }
-        else
-        {
-            <MudTd DataLabel="Level"><a href="/problems/Level/@context.Level" class="btn btn-warning text-white btn-sm" 
-                style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
-        }
-        <MudTd DataLabel="Total">@context.Total</MudTd>
-        <MudTd DataLabel="AC Rate">@context.ACRate</MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
-            SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4"/>
-    </PagerContent>
-</MudTable>
-@* <div class="row d-flex justify-content-center">
-    <div class="col-sm-4 col-lg-3 col-md-3 m-4" style="align-self: center;">
-        <select @onchange="OnSelectPageSize" class="form-select" aria-label="Default select example">
-            <option selected value="10">10/page</option>
-            <option value="25">25/page</option>
-            <option value="50">50/page</option>
-            <option value="100">100/page</option>
-        </select>
+<div class="row w-100">
+    <div class="col-lg-8 col-md-8">
+
+        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" 
+            Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Title</MudTh>
+                <MudTh>Level</MudTh>
+                <MudTh>Total</MudTh>
+                <MudTh>AC Rate</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                @if(context.Level == "Low")
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-success text-white btn-sm" 
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                else if(context.Level == "Mid")
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-primary text-white btn-sm" 
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                else
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-warning text-white btn-sm" 
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                <MudTd DataLabel="Total">@context.Total</MudTd>
+                <MudTd DataLabel="AC Rate">@context.ACRate</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
+                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4"/>
+            </PagerContent>
+        </MudTable>
     </div>
-</div> *@
+    <div class="col-lg-4 col-md-4">
+        @if(Tags != null)
+        {
+            <TagsComponent Model="@Tags"></TagsComponent>
+        }
+    </div>
+</div>
+
 @if(!IsNotLoading)
 {
     <div id="cover-spin"></div>
 }
 
 @code {
+    [Parameter]
+    public string TagParameter { get; set; } = "";
+    [Parameter]
+    public string LevelParameter { get; set; } = "";
+    
+    
+    public TagsModel Tags { get; set; } = new();
     // prop to handle loading time view
     public bool IsNotLoading { get; set; } = false;
     // limit per page
@@ -74,7 +89,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
         await MakeAPICall();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await MakeAPICall();
+        _table.NavigateTo(1);
     }
     private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
     {
@@ -108,21 +130,4 @@
         await MakeAPICall(Offset, Limit, Page);
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
-    // 
-    // private async Task OnSelectPageSize(ChangeEventArgs e)
-    // {        
-    //     int cap = 10;
-    //     if(e.Value.ToString() == "10")
-    //         int.TryParse(e.Value.ToString(), out cap);
-    //     else if(e.Value.ToString() == "25")
-    //         int.TryParse(e.Value.ToString(), out cap);
-    //     else if(e.Value.ToString() == "50")
-    //         int.TryParse(e.Value.ToString(), out cap);
-    //     else if(e.Value.ToString() == "100")
-    //         int.TryParse(e.Value.ToString(), out cap);
-    //     Limit = cap;
-    //     Offset = Limit * (Page - 1);
-// 
-    //     await MakeAPICall(Offset, Limit, Page);
-    // }
 }
