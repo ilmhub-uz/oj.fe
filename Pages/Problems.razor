@@ -50,8 +50,14 @@
         </select>
     </div>
 </div> *@
+@if(!IsNotLoading)
+{
+    <div id="cover-spin"></div>
+}
 
 @code {
+    // prop to handle loading time view
+    public bool IsNotLoading { get; set; } = false;
     // limit per page
     private int Limit { get; set; } = 10;
     // offset problems till nth page
@@ -72,6 +78,9 @@
     }
     private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
     {
+        IsNotLoading = false;
+        StateHasChanged();
+
         var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
         var jsonString = await httpResponse.Content.ReadAsStringAsync();
         Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
@@ -89,14 +98,14 @@
                 ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
             };
         });
-        
+        IsNotLoading = true;
+        StateHasChanged();
     }
     private async Task PageChanged(int i)
     {
         Page = i;
         Offset = Limit * (Page - 1);
         await MakeAPICall(Offset, Limit, Page);
-        StateHasChanged();
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
     // 
