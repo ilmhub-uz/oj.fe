@@ -42,8 +42,8 @@
       </ul>
       <form class="d-flex">
         
-        <button class="btn btn-outline-success mx-2" @onclick="() => OnLoginClicked()">Login</button>
-        <button class="btn btn-outline-success mx-2"  @onclick="() => OnSignUpClicked()">Sign Up</button>
+        <a class="btn btn-outline-success mx-2" @onclick="() => OnLoginClicked()">Login</a>
+        <a class="btn btn-outline-success mx-2"  @onclick="() => OnSignUpClicked()">Sign Up</a>
       </form>
     </div>
   </div>
@@ -58,7 +58,7 @@
     }
     private void OnHomeClicked()
     {
-        NavigationManager.NavigateTo("/homepage");
+        NavigationManager.NavigateTo("/");
         
     }
     private void OnProblemsClicked()
