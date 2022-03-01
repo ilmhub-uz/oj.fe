@@ -45,3 +45,96 @@ a, .btn-link {
     width: 100%;
     z-index: 1000;
 }
+
+
+.taglist-title[data-v-24595e44] {
+    margin-left: -10px;
+    margin-bottom: -10px;
+}
+
+.panel-title {
+    font-size: 21px;
+    font-weight: 500;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    line-height: 30px;
+    padding: 5px 15px;
+}
+.ivu-card-head {
+    border-bottom: 1px solid #e9eaec;
+    padding: 14px 16px;
+    line-height: 1;
+}
+
+.ivu-card-head {
+    border-bottom-width: 0;
+}
+
+.panel-extra,
+.panel-extra .ivu-input-icon {
+  line-height: 40px;
+}
+.panel-extra ul.filter > li {
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.ivu-card-extra {
+    position: absolute;
+    right: 16px;
+    top: 14px;
+}
+
+.ivu-card-body {
+    padding: 16px;
+}
+
+.panel-body {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.tag-btn[data-v-24595e44] {
+    margin-right: 5px;
+    margin-bottom: 10px;
+}
+#pick-one[data-v-24595e44] {
+    margin-top: 10px;
+}
+
+.div-height {
+    height: 98vh !important;
+    overflow-y: auto;
+}
+
+
+
+
+
+
+.taglist-title[data-v-24595e44] {
+    margin-left: -10px;
+    margin-bottom: -10px;
+}
+  .tag-btn[data-v-24595e44] {
+    margin-right: 5px;
+    margin-bottom: 10px;
+}
+  #pick-one[data-v-24595e44] {
+    margin-top: 10px;
+}
+
+.ivu-btn {
+    background-image: none;
+    color: rgb(149, 142, 131);
+    background-color: rgb(8, 10, 10);
+    border-color: rgb(35, 38, 39);
+}
+
+.ivu-btn-long {
+    width: 100%;
+}
+
+.ivu-icon-shuffle:before {
+    content: "\F221";
+}
