@@ -1,0 +1,20 @@
+@inject HttpClient Http
+@page "/problems/{ProblemId}"
+@using Models.Problems
+@using Newtonsoft.Json
+
+<p>Page @ProblemId</p>
+@code {
+
+    [Parameter]
+    public string ProblemId { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?problem_id={ProblemId}");
+        var jsonStringres = await response.Content.ReadAsStringAsync();
+        var dtores = JsonConvert.DeserializeObject<ProblemData>(jsonStringres);
+
+        Console.WriteLine($"{JsonConvert.SerializeObject(dtores)} keldi");
+    }
+}
