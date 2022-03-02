@@ -45,9 +45,136 @@ a, .btn-link {
     width: 100%;
     z-index: 1000;
 }
+<<<<<<< HEAD
 .ivu-modal-header {
     border-bottom: 1px solid #e9eaec;
     padding: 14px 16px;
     line-height: 1;
     text-align: left;
+=======
+
+#cover-spin {
+    position:fixed;
+    width:100%;
+    left:0;right:0;top:0;bottom:0;
+    background-color: rgba(255,255,255,0.7);
+    z-index:9999;
+    display:block;
+}
+
+@-webkit-keyframes spin {
+	from {-webkit-transform:rotate(0deg);}
+	to {-webkit-transform:rotate(360deg);}
+}
+
+@keyframes spin {
+	from {transform:rotate(0deg);}
+	to {transform:rotate(360deg);}
+}
+
+#cover-spin::after {
+    content:'';
+    display:block;
+    position:absolute;
+    left:48%;top:40%;
+    width:40px;height:40px;
+    border-style:solid;
+    border-color:black;
+    border-top-color:transparent;
+    border-width: 4px;
+    border-radius:50%;
+    -webkit-animation: spin .8s linear infinite;
+    animation: spin .8s linear infinite;
+}
+.taglist-title[data-v-24595e44] {
+    margin-left: -10px;
+    margin-bottom: -10px;
+}
+
+.panel-title {
+    font-size: 21px;
+    font-weight: 500;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    line-height: 30px;
+    padding: 5px 15px;
+}
+.ivu-card-head {
+    border-bottom: 1px solid #e9eaec;
+    padding: 14px 16px;
+    line-height: 1;
+}
+
+.ivu-card-head {
+    border-bottom-width: 0;
+}
+
+.panel-extra,
+.panel-extra .ivu-input-icon {
+  line-height: 40px;
+}
+.panel-extra ul.filter > li {
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.ivu-card-extra {
+    position: absolute;
+    right: 16px;
+    top: 14px;
+}
+
+.ivu-card-body {
+    padding: 16px;
+}
+
+.panel-body {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.tag-btn[data-v-24595e44] {
+    margin-right: 5px;
+    margin-bottom: 10px;
+}
+#pick-one[data-v-24595e44] {
+    margin-top: 10px;
+}
+
+.div-height {
+    height: 98vh !important;
+    overflow-y: auto;
+}
+
+
+
+
+
+
+.taglist-title[data-v-24595e44] {
+    margin-left: -10px;
+    margin-bottom: -10px;
+}
+  .tag-btn[data-v-24595e44] {
+    margin-right: 5px;
+    margin-bottom: 10px;
+}
+  #pick-one[data-v-24595e44] {
+    margin-top: 10px;
+}
+
+.ivu-btn {
+    background-image: none;
+    color: rgb(149, 142, 131);
+    background-color: rgb(8, 10, 10);
+    border-color: rgb(35, 38, 39);
+}
+
+.ivu-btn-long {
+    width: 100%;
+}
+
+.ivu-icon-shuffle:before {
+    content: "\F221";
+>>>>>>> 6b8e7ea8bd22d77f5d19d0bdce196434de90b680
 }
