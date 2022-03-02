@@ -37,8 +37,8 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-success text-white" style="border-radius: 20px;" type="submit">Search</button>
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @bind="SearchWord">
+                    <button class="btn btn-success text-white" style="border-radius: 20px;" type="submit" @onclick="Search">Search</button>
                 </form>
             </div>
         </div>
@@ -108,6 +108,7 @@
     public string TagParameter { get; set; } = "";
     [Parameter]
     public string LevelParameter { get; set; } = "";
+    public string SearchWord { get; set; }
     public TagsModel Tags { get; set; } = new();
     // prop to handle loading time view
     public bool IsNotLoading { get; set; } = false;
@@ -128,63 +129,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // @* IsNotLoading = false;
-        // StateHasChanged(); *@
         Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
-        // await MakeAPICall();
-        // IsNotLoading = true;
-        // StateHasChanged();
     }
 
     protected override async Task OnParametersSetAsync()
     {
         IsNotLoading = false;
         StateHasChanged();
-        if(LevelParameter != null)
-        {
-            var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={PaginationCount}&page={1}");
-            var jsonString = await httpResponse.Content.ReadAsStringAsync();
-            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-            
-            _elements = Model.Data.ProblemModels.Where(x => x.Difficulty == LevelParameter).Select(x => 
-            {
-                return new ProblemTableData()
-                {
-                    Id = x._Id,
-                    Title = x.Title,
-                    Level = x.Difficulty,
-                    Total = x.SubmissionNumber,
-                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
-                };
-            }).ToList();
-            PaginationCount = _elements.Count();
-        }
-        else if(TagParameter != null)
-        {
-            var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={PaginationCount}&page={1}");
-            var jsonString = await httpResponse.Content.ReadAsStringAsync();
-            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-
-            _elements = Model.Data.ProblemModels.Where(x => x.Tags.Contains(TagParameter)).Select(x => 
-            {
-                return new ProblemTableData()
-                {
-                    Id = x._Id,
-                    Title = x.Title,
-                    Level = x.Difficulty,
-                    Total = x.SubmissionNumber,
-                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
-                };
-            }).ToList();
-            PaginationCount = _elements.Count();
-        }
-        else
-        {
-            await MakeAPICall();
-        }
-        Console.WriteLine($"{JsonConvert.SerializeObject(Model.Data.ProblemModels.Select(x => x.Difficulty).Distinct())}");
+        await MakeAPICall();
         IsNotLoading = true;
         StateHasChanged();
+
+        // for further changes when implementing level and tags and search
         _elementsCopy = _elements.Select(x => x).ToList();
     }
     private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
@@ -211,8 +167,7 @@
     {
         Page = i;
         Offset = Limit * (Page - 1);
-        
-        // _table.NavigateTo(i);
+        await MakeAPICall();
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
 
@@ -227,5 +182,12 @@
     private void OnTagClicked(string tag)
     {
         NavigationManager.NavigateTo("/problems/tag/" + tag);
+    }
+    private void Search()
+    {
+        // not implemented yet
+
+        // at the end
+        SearchWord = string.Empty;
     }
 }
