@@ -15,7 +15,7 @@
         var jsonStringres = await response.Content.ReadAsStringAsync();
         Model = JsonConvert.DeserializeObject<AcmRankModels>(jsonStringres);
 
-        Console.WriteLine($"{JsonConvert.SerializeObject(Model)} keldi");
+        @* Console.WriteLine($"{JsonConvert.SerializeObject(Model)} keldi"); *@
     }
 
 }
