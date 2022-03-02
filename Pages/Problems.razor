@@ -124,19 +124,29 @@
     public ProblemsModel Model { get; set; }
     // problems model derived from raw API
     private IEnumerable<ProblemTableData> _elements = new List<ProblemTableData>();
+    private IEnumerable<ProblemTableData> _elementsCopy = new List<ProblemTableData>();
 
     protected override async Task OnInitializedAsync()
     {
+        // @* IsNotLoading = false;
+        // StateHasChanged(); *@
         Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
-        await MakeAPICall();
+        // await MakeAPICall();
+        // IsNotLoading = true;
+        // StateHasChanged();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        await MakeAPICall();
-        @if(LevelParameter != null)
+        IsNotLoading = false;
+        StateHasChanged();
+        if(LevelParameter != null)
         {
-            _elements = Model.Data.ProblemModels.Where(x => x.Difficulty == LevelParameter).ToList().Select(x =>
+            var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={PaginationCount}&page={1}");
+            var jsonString = await httpResponse.Content.ReadAsStringAsync();
+            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+            
+            _elements = Model.Data.ProblemModels.Where(x => x.Difficulty == LevelParameter).Select(x => 
             {
                 return new ProblemTableData()
                 {
@@ -147,32 +157,62 @@
                     ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
                 };
             }).ToList();
-            _table.NavigateTo(1);
+            PaginationCount = _elements.Count();
         }
-        
+        else if(TagParameter != null)
+        {
+            var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={PaginationCount}&page={1}");
+            var jsonString = await httpResponse.Content.ReadAsStringAsync();
+            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+
+            _elements = Model.Data.ProblemModels.Where(x => x.Tags.Contains(TagParameter)).Select(x => 
+            {
+                return new ProblemTableData()
+                {
+                    Id = x._Id,
+                    Title = x.Title,
+                    Level = x.Difficulty,
+                    Total = x.SubmissionNumber,
+                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+                };
+            }).ToList();
+            PaginationCount = _elements.Count();
+        }
+        else
+        {
+            await MakeAPICall();
+        }
+        Console.WriteLine($"{JsonConvert.SerializeObject(Model.Data.ProblemModels.Select(x => x.Difficulty).Distinct())}");
+        IsNotLoading = true;
+        StateHasChanged();
+        _elementsCopy = _elements.Select(x => x).ToList();
     }
     private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
     {
-        IsNotLoading = false;
-        StateHasChanged();
-
-        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={1}&page={1}");
+        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
         var jsonString = await httpResponse.Content.ReadAsStringAsync();
-        var res = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-
-        var httpResponseMain = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={res.Data.Total}&page={1}");
-        var jsonStringMain = await httpResponse.Content.ReadAsStringAsync();
         Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
         PaginationCount = Model.Data.Total;
+
+        _elements = Model.Data.ProblemModels.Select(x => 
+        {
+            return new ProblemTableData()
+            {
+                Id = x._Id,
+                Title = x.Title,
+                Level = x.Difficulty,
+                Total = x.SubmissionNumber,
+                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+            };
+        }).ToList();
         // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
-        IsNotLoading = true;
-        StateHasChanged();
     }
     private async Task PageChanged(int i)
     {
         Page = i;
         Offset = Limit * (Page - 1);
-        @* await MakeAPICall(Offset, Limit, Page); *@
+        
+        // _table.NavigateTo(i);
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
 
@@ -183,5 +223,9 @@
     private void OnDifficultyLevelClicked(string level)
     {
         NavigationManager.NavigateTo("/problems/level/" + level);
+    }
+    private void OnTagClicked(string tag)
+    {
+        NavigationManager.NavigateTo("/problems/tag/" + tag);
     }
 }
