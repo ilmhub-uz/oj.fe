@@ -12,10 +12,42 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
-<div class="row w-100">
+<div class="row w-100 pt-2 pb-5">
+    @* HEADER *@
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid py-3">
+            <a class="navbar-brand" href="#">Problem List</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent2" aria-controls="navbarSupportedContent2" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Difficulty
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Low")'>Low</a></li>
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Mid")'>Mid</a></li>
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("High")'>High</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-success text-white" style="border-radius: 20px;" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    @* Problem Grid Table *@
     <div class="col-lg-8 col-md-8">
-        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" 
-            Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" Hover="true" Breakpoint="Breakpoint.Sm"
+            LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh>#</MudTh>
                 <MudTh>Title</MudTh>
@@ -24,21 +56,26 @@
                 <MudTh>AC Rate</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Id"><a style="cursor: pointer;" @onclick="() => OnProblemClicked(context.Id)">@context.Id</a></MudTd>
-                <MudTd DataLabel="Title"><a style="cursor: pointer;" @onclick="() => OnProblemClicked(context.Id)">@context.Title</a></MudTd>
-                @if(context.Level == "Low")
+                <MudTd DataLabel="Id"><a style="cursor: pointer;"
+                        @onclick="() => OnProblemClicked(context.Id)">@context.Id</a></MudTd>
+                <MudTd DataLabel="Title"><a style="cursor: pointer;"
+                        @onclick="() => OnProblemClicked(context.Id)">@context.Title</a></MudTd>
+                @if (context.Level == "Low")
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-success text-white btn-sm" 
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-success text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
-                else if(context.Level == "Mid")
+                else if (context.Level == "Mid")
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-primary text-white btn-sm" 
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-primary text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
                 else
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level" class="btn btn-warning text-white btn-sm" 
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-warning text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
                 <MudTd DataLabel="Total">@context.Total</MudTd>
@@ -46,19 +83,22 @@
             </RowTemplate>
             <PagerContent>
                 <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
-                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4"/>
+                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)"
+                    Class="pa-4" />
             </PagerContent>
         </MudTable>
     </div>
-    <div class="col-lg-4 col-md-4">
-        @if(Tags != null)
+    @* Tags *@
+    <div class="col-lg-4 col-md-4 py-4 border shadow-sm">
+        @if (Tags != null)
         {
             <TagsComponent Model="@Tags"></TagsComponent>
         }
     </div>
 </div>
 
-@if(!IsNotLoading)
+@* Visible if Loading *@
+@if (!IsNotLoading)
 {
     <div id="cover-spin"></div>
 }
@@ -67,7 +107,7 @@
     [Parameter]
     public string TagParameter { get; set; } = "";
     [Parameter]
-    public string LevelParameter { get; set; } = "";    
+    public string LevelParameter { get; set; } = "";
     public TagsModel Tags { get; set; } = new();
     // prop to handle loading time view
     public bool IsNotLoading { get; set; } = false;
@@ -94,30 +134,37 @@
     protected override async Task OnParametersSetAsync()
     {
         await MakeAPICall();
-        _table.NavigateTo(1);
+        @if(LevelParameter != null)
+        {
+            _elements = Model.Data.ProblemModels.Where(x => x.Difficulty == LevelParameter).ToList().Select(x =>
+            {
+                return new ProblemTableData()
+                {
+                    Id = x._Id,
+                    Title = x.Title,
+                    Level = x.Difficulty,
+                    Total = x.SubmissionNumber,
+                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+                };
+            }).ToList();
+            _table.NavigateTo(1);
+        }
+        
     }
     private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
     {
         IsNotLoading = false;
         StateHasChanged();
 
-        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
+        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={1}&page={1}");
         var jsonString = await httpResponse.Content.ReadAsStringAsync();
+        var res = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+
+        var httpResponseMain = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={0}&limit={res.Data.Total}&page={1}");
+        var jsonStringMain = await httpResponse.Content.ReadAsStringAsync();
         Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
         PaginationCount = Model.Data.Total;
         // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
-
-        _elements = Model.Data.ProblemModels.Select(x => 
-        {
-            return new ProblemTableData()
-            {
-                Id = x._Id,
-                Title = x.Title,
-                Level = x.Difficulty,
-                Total = x.SubmissionNumber,
-                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
-            };
-        });
         IsNotLoading = true;
         StateHasChanged();
     }
@@ -125,12 +172,16 @@
     {
         Page = i;
         Offset = Limit * (Page - 1);
-        await MakeAPICall(Offset, Limit, Page);
+        @* await MakeAPICall(Offset, Limit, Page); *@
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
 
     private void OnProblemClicked(string id)
     {
         NavigationManager.NavigateTo("/problems/" + id);
+    }
+    private void OnDifficultyLevelClicked(string level)
+    {
+        NavigationManager.NavigateTo("/problems/level/" + level);
     }
 }

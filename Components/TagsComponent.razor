@@ -1,3 +1,4 @@
+@inject NavigationManager NavigationManager
 <div data-v-24595e44="" class="ivu-col ivu-col-span-5 div-height" style="width: 100%; padding-left: 9px;
     padding-right: 9px;">
     <div data-v-24595e44="" class="ivu-card ivu-card-bordered">
@@ -15,7 +16,7 @@
                 
                 @foreach (var tag in Model.Data)
                 {
-                    <a href="/problems/tag/@tag.Name" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                    <a @onclick="() => OnTagClicked(tag.Name)" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
                 }
             }
         </div>
@@ -29,5 +30,9 @@
     protected override void OnParametersSet()
     {
         // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
+    }
+    public void OnTagClicked(string parameter)
+    {
+        NavigationManager.NavigateTo("problems/tag/" + parameter);
     }
 }
