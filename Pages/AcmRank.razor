@@ -1,2 +1,21 @@
 @inherits ComponentBase
 @page "/acmrank"
+@inject HttpClient Http
+@using Models.AcmRank
+@using Newtonsoft.Json
+
+
+@code{
+
+    public AcmRankModels Model { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetAsync($"http://oj.ilmhub.uz/api/user_rank?offset=0&limit=30&rule=ACM");
+        var jsonStringres = await response.Content.ReadAsStringAsync();
+        Model = JsonConvert.DeserializeObject<AcmRankModels>(jsonStringres);
+
+        Console.WriteLine($"{JsonConvert.SerializeObject(Model)} keldi");
+    }
+
+}
