@@ -1,3 +1,62 @@
 @inherits ComponentBase
 @page "/login"
-<h1>Loginga keldi</h1>
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@inject NavigationManager NavigationManager
+
+<div style ="text-align: center; display: flex; justify-content: center;" class="mt-10">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <MudGrid>
+        <MudItem Style="width: 400px;">
+            <MudCard>
+                <div class="ivu-modal-header">
+                    <div data-v-2e5fb307 class="modal-title"><h2>Welcome to ilmhub</h2></div>
+                </div>
+                <MudCardContent>
+                    <MudTextField Label="Username"
+                                @bind-Value="model.Username" For="@(() => model.Username)"/>
+                    <MudTextField Label="Password" Class="mt-3"
+                                @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <div class="d-flex align-center justify-space-between mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" FullWidth="false">Login</MudButton>
+                    </div>
+                </MudCardActions>
+                <MudPaper Class="d-flex justify-space-between py-2 px-1 mt-6">
+                    <MudLink Typo="Typo.body2" Class="pa-2 mx-2" @onclick="NavToRegModalCom">No account? Register now!</MudLink>
+                    <MudLink  Typo="Typo.body2" Class="pa-2 mx-2">Forget Password</MudLink>
+                </MudPaper>
+            </MudCard>
+        </MudItem>
+    
+    </MudGrid>
+    </EditForm>
+</div>
+@code {
+    LoginAccountForm model = new LoginAccountForm();
+    bool success;
+
+    public class LoginAccountForm
+    {
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+    }
+
+    private void NavToRegModalCom()
+    {
+        NavigationManager.NavigateTo("register");
+    }
+}

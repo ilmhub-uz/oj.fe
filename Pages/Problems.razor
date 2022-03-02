@@ -129,7 +129,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        IsNotLoading = false;
+        StateHasChanged();
         Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+        IsNotLoading = true;
+        StateHasChanged();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -167,7 +171,11 @@
     {
         Page = i;
         Offset = Limit * (Page - 1);
-        await MakeAPICall();
+        IsNotLoading = false;
+        StateHasChanged();
+        await MakeAPICall(Offset, Limit, Page);
+        IsNotLoading = true;
+        StateHasChanged();
         Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
     }
 

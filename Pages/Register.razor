@@ -1,4 +1,76 @@
-@inherits ComponentBase
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+
 @page "/register"
 
-<h1>Registerga keldim</h1>
+    <div style="text-align:center; display: flex; justify-content: center;" class="mt-10">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <MudGrid>
+        <MudItem Style="width: 400px;">
+            <MudCard>
+                <div class="ivu-modal-header">
+                    <div data-v-2e5fb307 class="modal-title"><h2>Welcome to ilmhub</h2></div>
+                </div>
+                <MudCardContent>
+                    <MudTextField Label="Firstname"
+                                @bind-Value="model.Username" For="@(() => model.Username)"/>
+                    <MudTextField Label="Email" Class="mt-3"
+                                @bind-Value="model.Email" For="@(() => model.Email)"/>
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password"/>
+                    <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                                @bind-Value="model.Password2" For="@(() => model.Password2)" InputType="InputType.Password"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <div class="d-flex align-center justify-space-between mt-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" FullWidth="false">Register</MudButton>
+                    </div>
+                </MudCardActions>
+                <MudCardActions>
+                    <MudLink Typo="Typo.body2" Class="pa-2 mx-2" @onclick="NavToLoginModalCom">Already registed? Login now!</MudLink>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+    </EditForm>
+</div>
+
+
+
+@code {
+    RegisterAccountForm model = new RegisterAccountForm();
+    bool success;
+
+    public class RegisterAccountForm
+    {
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        public string Password { get; set; }
+
+        [Required]
+        [Compare(nameof(Password))]
+        public string Password2 { get; set; }
+
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+    }
+
+    private void NavToLoginModalCom()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+} 
