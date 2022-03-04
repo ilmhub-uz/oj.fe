@@ -1,15 +1,29 @@
-@inherits ComponentBase
+@using oj.fe.Models.Posts
+@inject HttpClient Http
+@using Newtonsoft.Json;
 @page "/"
 
-@code {
-    public string Text { get; set; } = "????";
-    public string ButtonText { get; set; } = "Click Me";
-    public int ButtonClicked { get; set; }
+@* <PostCardComponent>
+</PostCardComponent> *@
+@if(Posts != null && Posts.Data != null && Posts.Data.Results != null)
+{
+    <div class="row">
+        @foreach(var item in Posts.Data.Results)
+        {
+            <div class="col-lg-3 col-md-4 col-sm-6 col">
+                <PostComponent Model="@item"/>
+            </div>
+        }
+    </div>
+}
 
-    void ButtonOnClick()
+@code {
+    public PostsModel Posts { get; set; } = new() { Data = new() };
+    protected override async Task OnInitializedAsync()
     {
-        ButtonClicked += 1;
-        Text = $"Awesome x {ButtonClicked}";
-        ButtonText = "Click Me Again";
+        var httpRes = await Http.GetAsync("http://oj.ilmhub.uz/api/announcement?offset=0&limit=1");
+        var jsonString = await httpRes.Content.ReadAsStringAsync();
+        Posts = JsonConvert.DeserializeObject<PostsModel>(jsonString);
+        @* Posts = await Http.GetFromJsonAsync<PostsModel>("http://oj.ilmhub.uz/api/announcement?offset=0&limit=1"); *@
     }
 }

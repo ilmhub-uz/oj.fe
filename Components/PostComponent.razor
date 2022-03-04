@@ -1,0 +1,68 @@
+@inject NavigationManager NavigationManager
+@using System.Text.Json
+@using BlazorPagination
+
+@* <table class="table">
+    <tbody>
+    @foreach (var item in _data.Results)
+    {
+    <tr>@item</tr>
+    }
+    </tbody>
+</table>
+<BlazorPager CurrentPage="@_data.CurrentPage"
+         PageCount="@_data.PageCount"
+         OnPageChanged="(async e => { _page = e; await FetchData();})"
+
+         ShowFirstLast="false"
+         ShowPageNumbers="true"
+         VisiblePages="10"
+         FirstText="First"
+         LastText="Last" /> *@
+
+@if(Model != null)
+{   
+    <div class="card border-primary mb-3" style="width: 18rem;">
+    
+    <div class="card-header p-3 mb-2 bg-primary text-white">@Model.Title</div>
+    
+    <div class="card-body">
+        <p class="card-text">@Model.Create_time.</p>
+        <p class="card-text">@Model.Created_by.Username</p>
+        <a @onclick="() => OnReadMoreClicked()" color="color-primary" class="card-link">Read More</a>
+        
+    </div>
+    </div>
+}
+
+
+
+@code{
+
+    @* private PagedResult<string> _data;
+    private string _filter;
+    private int _page = 1;
+    protected override OnInitialized()
+    {
+        _data = FetchData(_filter, _page);
+    } *@
+
+    [Parameter]
+    public oj.fe.Models.Posts.Result Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if(Model is not null)
+        {
+            Console.WriteLine(JsonSerializer.Serialize(Model));
+        }
+        else
+        {
+            Console.WriteLine($"Model null keldi");
+        }
+    }
+    protected void OnReadMoreClicked()
+    {
+        NavigationManager.NavigateTo("/readmore");
+    }
+}
