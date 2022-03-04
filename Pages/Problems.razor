@@ -1,18 +1,201 @@
-@inject HttpClient Http
-
 @page "/problems"
-@using Models.Tags
-@using oj.fe.Components
 
-@if(Tags != null)
+@* these two page implementations have not been completed yet. *@
+@page "/problems/tag/{TagParameter}"
+@page "/problems/level/{LevelParameter}"
+@using Models.CustomModels
+@using Models.Tags
+@using Models.Problems
+@using Newtonsoft.Json
+@using System.Globalization
+@using oj.fe.Components
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="row w-100 pt-2 pb-5">
+    @* HEADER *@
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid py-3">
+            <a class="navbar-brand" href="#">Problem List</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent2" aria-controls="navbarSupportedContent2" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Difficulty
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Low")'>Low</a></li>
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Mid")'>Mid</a></li>
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("High")'>High</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @bind="SearchWord">
+                    <button class="btn btn-success text-white" style="border-radius: 20px;" type="submit" @onclick="Search">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    @* Problem Grid Table *@
+    <div class="col-lg-8 col-md-8">
+        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" Hover="true" Breakpoint="Breakpoint.Sm"
+            LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Title</MudTh>
+                <MudTh>Level</MudTh>
+                <MudTh>Total</MudTh>
+                <MudTh>AC Rate</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id"><a style="cursor: pointer;"
+                        @onclick="() => OnProblemClicked(context.Id)">@context.Id</a></MudTd>
+                <MudTd DataLabel="Title"><a style="cursor: pointer;"
+                        @onclick="() => OnProblemClicked(context.Id)">@context.Title</a></MudTd>
+                @if (context.Level == "Low")
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-success text-white btn-sm"
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                else if (context.Level == "Mid")
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-primary text-white btn-sm"
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                else
+                {
+                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                        class="btn btn-warning text-white btn-sm"
+                        style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
+                }
+                <MudTd DataLabel="Total">@context.Total</MudTd>
+                <MudTd DataLabel="AC Rate">@context.ACRate</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
+                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)"
+                    Class="pa-4" />
+            </PagerContent>
+        </MudTable>
+    </div>
+    @* Tags *@
+    <div class="col-lg-4 col-md-4 py-4 border shadow-sm">
+        @if (Tags != null)
+        {
+            <TagsComponent Model="@Tags"></TagsComponent>
+        }
+    </div>
+</div>
+
+@* Visible if Loading *@
+@if (!IsNotLoading)
 {
-    <TagsComponent Model="@Tags"></TagsComponent>
+    <div id="cover-spin"></div>
 }
+
 @code {
+    [Parameter]
+    public string TagParameter { get; set; } = "";
+    [Parameter]
+    public string LevelParameter { get; set; } = "";
+    public string SearchWord { get; set; }
     public TagsModel Tags { get; set; } = new();
-    
+    // prop to handle loading time view
+    public bool IsNotLoading { get; set; } = false;
+    // limit per page
+    private int Limit { get; set; } = 10;
+    // offset problems till nth page
+    private int Offset { get; set; }
+    // page number
+    private int Page { get; set; }
+    // number of pagination items
+    private int PaginationCount = 1;
+    private MudTable<ProblemTableData> _table;
+    // raw API response
+    public ProblemsModel Model { get; set; }
+    // problems model derived from raw API
+    private IEnumerable<ProblemTableData> _elements = new List<ProblemTableData>();
+    private IEnumerable<ProblemTableData> _elementsCopy = new List<ProblemTableData>();
+
     protected override async Task OnInitializedAsync()
     {
+        IsNotLoading = false;
+        StateHasChanged();
         Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+        IsNotLoading = true;
+        StateHasChanged();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        IsNotLoading = false;
+        StateHasChanged();
+        await MakeAPICall();
+        IsNotLoading = true;
+        StateHasChanged();
+
+        // for further changes when implementing level and tags and search
+        _elementsCopy = _elements.Select(x => x).ToList();
+    }
+    private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
+    {
+        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
+        var jsonString = await httpResponse.Content.ReadAsStringAsync();
+        Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+        PaginationCount = Model.Data.Total;
+
+        _elements = Model.Data.ProblemModels.Select(x => 
+        {
+            return new ProblemTableData()
+            {
+                Id = x._Id,
+                Title = x.Title,
+                Level = x.Difficulty,
+                Total = x.SubmissionNumber,
+                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+            };
+        }).ToList();
+        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
+    }
+    private async Task PageChanged(int i)
+    {
+        Page = i;
+        Offset = Limit * (Page - 1);
+        IsNotLoading = false;
+        StateHasChanged();
+        await MakeAPICall(Offset, Limit, Page);
+        IsNotLoading = true;
+        StateHasChanged();
+        Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
+    }
+
+    private void OnProblemClicked(string id)
+    {
+        NavigationManager.NavigateTo("/problems/" + id);
+    }
+    private void OnDifficultyLevelClicked(string level)
+    {
+        NavigationManager.NavigateTo("/problems/level/" + level);
+    }
+    private void OnTagClicked(string tag)
+    {
+        NavigationManager.NavigateTo("/problems/tag/" + tag);
+    }
+    private void Search()
+    {
+        // not implemented yet
+
+        // at the end
+        SearchWord = string.Empty;
     }
 }

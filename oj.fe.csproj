@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <!-- <Nullable>enable</Nullable> -->
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -10,7 +10,6 @@
     <PackageReference Include="BlazorPagination" Version="0.2.16" />
     <PackageReference Include="MudBlazor" Version="6.0.6" />
     <PackageReference Include="newtonsoft.json" Version="13.0.1" />
-    <PackageReference Include="Radzen.Blazor" Version="3.15.6" />
   </ItemGroup>
 
 </Project>

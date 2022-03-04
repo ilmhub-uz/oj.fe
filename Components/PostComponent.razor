@@ -1,37 +1,20 @@
 @inject NavigationManager NavigationManager
-@using System.Text.Json
+@using Newtonsoft.Json
 @using BlazorPagination
-
-@* <table class="table">
-    <tbody>
-    @foreach (var item in _data.Results)
-    {
-    <tr>@item</tr>
-    }
-    </tbody>
-</table>
-<BlazorPager CurrentPage="@_data.CurrentPage"
-         PageCount="@_data.PageCount"
-         OnPageChanged="(async e => { _page = e; await FetchData();})"
-
-         ShowFirstLast="false"
-         ShowPageNumbers="true"
-         VisiblePages="10"
-         FirstText="First"
-         LastText="Last" /> *@
 
 @if(Model != null)
 {   
-    <div class="card border-primary mb-3" style="width: 18rem;">
+    <div class="card border-primary mb-3" style="width: 18rem; height: 400px; position: relative;">
     
-    <div class="card-header p-3 mb-2 bg-primary text-white">@Model.Title</div>
-    
-    <div class="card-body">
-        <p class="card-text">@Model.Create_time.</p>
-        <p class="card-text">@Model.Created_by.Username</p>
-        <a @onclick="() => OnReadMoreClicked()" color="color-primary" class="card-link">Read More</a>
+        <div class="card-header p-3 mb-2 bg-primary text-white">@string.Join(" ", Model.Title.Split().Take(3))</div>
         
-    </div>
+        <div class="card-body" id="card-body-wrapper">
+            <p class="card-text text-secondary" style="font-size: 12px;">@Model.Create_time.ToString("dd.MM.yyyy HH:MM")</p>
+            <p class="card-text">Muallif: @Model.Created_by.Username</p>
+            <h5 class="card-text mt-5">@Model.Title</h5>
+            <div class="d-block">@((MarkupString)(string.Join(' ', @Model.Content.Split().Take(10).ToList())))</div>
+            <a @onclick="OnReadMoreClicked" color="color-primary" class="card-link" id="read-more">Davomini o'qish</a>
+        </div>
     </div>
 }
 
@@ -49,12 +32,13 @@
 
     [Parameter]
     public oj.fe.Models.Posts.Result Model { get; set; }
+    public string content { get; set; } = string.Empty;
 
     protected override void OnInitialized()
     {
         if(Model is not null)
         {
-            Console.WriteLine(JsonSerializer.Serialize(Model));
+            Console.WriteLine(JsonConvert.SerializeObject(Model));
         }
         else
         {
