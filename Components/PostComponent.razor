@@ -1,0 +1,52 @@
+@inject NavigationManager NavigationManager
+@using Newtonsoft.Json
+
+@if(Model != null)
+{   
+    <div class="card border-primary mb-3 post-card">
+    
+        <div class="card-header p-3 mb-2 bg-primary text-white">@string.Join(" ", Model.Title.Split().Take(3))</div>
+        
+        <div class="card-body" id="card-body-wrapper">
+            <p class="card-text text-secondary" style="font-size: 12px;">@Model.Create_time.ToString("dd.MM.yyyy HH:MM")</p>
+            <p class="card-text">Muallif: @Model.Created_by.Username</p>
+            <h5 class="card-text mt-5">@Model.Title</h5>
+            <div class="d-block">@((MarkupString)(string.Join(' ', @Model.Content.Split().Take(10).ToList())))</div>
+            <a @onclick="OnReadMoreClicked" color="color-primary" class="card-link" id="read-more">Davomini o'qish</a>
+        </div>
+    </div>
+}
+
+
+
+@code{
+
+    @* private PagedResult<string> _data;
+    private string _filter;
+    private int _page = 1;
+    protected override OnInitialized()
+    {
+        _data = FetchData(_filter, _page);
+    } *@
+
+    [Parameter]
+    public oj.fe.Models.Posts.Result Model { get; set; }
+
+    public string content { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if(Model is not null)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(Model));
+        }
+        else
+        {
+            Console.WriteLine($"Model null keldi");
+        }
+    }
+    protected void OnReadMoreClicked()
+    {
+        NavigationManager.NavigateTo("/readmore");
+    }
+}

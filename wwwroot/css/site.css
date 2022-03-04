@@ -175,3 +175,20 @@ a, .btn-link {
 .ivu-icon-shuffle:before {
     content: "\F221";
 }
+
+#read-more {
+    display: block;
+    position: absolute;
+    text-decoration: none;
+    bottom: 20px;
+}
+#card-body-wrapper a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.post-card {
+    width: 18rem;
+    height: 400px;
+    position: relative;
+}

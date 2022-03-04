@@ -1,3 +1,49 @@
-﻿@inherits ComponentBase
-
+﻿@using oj.fe.Models.Posts
+@inject HttpClient Http
+@using Newtonsoft.Json;
 @page "/"
+
+@* <PostCardComponent>
+</PostCardComponent> *@
+<div class="container mt-lg-4 mt-md-3 mt-ms-2 mt-1">
+    @if(Posts != null && Posts.Data != null && Posts.Data.Results != null)
+    {
+        <div class="row">
+                @foreach(var item in Posts.Data.Results)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                        <PostComponent Model="@item"/>
+                    </div>
+                }
+        </div>
+    }
+</div>
+<div class="d-flex flex-column align-center">
+    <MudPagination Count="@_count" Selected="@_selected" SelectedChanged="PageChanged" />
+</div>
+
+@code {
+    private int _selected = 1;
+    private int _count = 1;
+    public PostsModel Posts { get; set; } = new() { Data = new() };
+    protected override async Task OnInitializedAsync()
+    {
+        var httpRes = await Http.GetAsync("http://oj.ilmhub.uz/api/announcement?offset=0&limit=12");
+        var jsonString = await httpRes.Content.ReadAsStringAsync();
+        Posts = JsonConvert.DeserializeObject<PostsModel>(jsonString);
+        _count = (int)Math.Ceiling(Posts.Data.Total/(double)12);
+        Console.WriteLine(JsonConvert.SerializeObject(Posts));
+        @* Posts = await Http.GetFromJsonAsync<PostsModel>("http://oj.ilmhub.uz/api/announcement?offset=0&limit=1"); *@
+    }
+
+    private async Task PageChanged(int i)
+    {
+        _selected = i;
+        var offset = 12 * (_selected - 1);
+        var httpRes = await Http.GetAsync($"http://oj.ilmhub.uz/api/announcement?offset={offset}&limit=12");
+        var jsonString = await httpRes.Content.ReadAsStringAsync();
+        Posts = JsonConvert.DeserializeObject<PostsModel>(jsonString);
+        StateHasChanged();
+        
+    }
+}
