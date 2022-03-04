@@ -9,12 +9,12 @@
     @if(Posts != null && Posts.Data != null && Posts.Data.Results != null)
     {
         <div class="row">
-            @foreach(var item in Posts.Data.Results)
-            {
-                <div class="col-lg-3 col-md-4 col-sm-6 col">
-                    <PostComponent Model="@item"/>
-                </div>
-            }
+                @foreach(var item in Posts.Data.Results)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                        <PostComponent Model="@item"/>
+                    </div>
+                }
         </div>
     }
 </div>

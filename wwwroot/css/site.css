@@ -186,3 +186,9 @@ a, .btn-link {
     cursor: pointer;
     text-decoration: underline;
 }
+
+.post-card {
+    width: 18rem;
+    height: 400px;
+    position: relative;
+}
