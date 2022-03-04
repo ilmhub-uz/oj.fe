@@ -1,6 +1,5 @@
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json
-@using BlazorPagination
 
 @if(Model != null)
 {   
@@ -32,6 +31,7 @@
 
     [Parameter]
     public oj.fe.Models.Posts.Result Model { get; set; }
+
     public string content { get; set; } = string.Empty;
 
     protected override void OnInitialized()
