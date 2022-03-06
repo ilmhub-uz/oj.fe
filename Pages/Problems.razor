@@ -1,8 +1,6 @@
 @page "/problems"
 
 @* these two page implementations have not been completed yet. *@
-@page "/problems/tag/{TagParameter}"
-@page "/problems/level/{LevelParameter}"
 @using Models.CustomModels
 @using Models.Tags
 @using Models.Problems
@@ -24,12 +22,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent2">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                    <li class="nav-item dropdown d-lg-flex">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProblemPage" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Difficulty
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("All")'>All</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Low")'>Low</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Mid")'>Mid</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("High")'>High</a></li>
@@ -83,8 +82,7 @@
             </RowTemplate>
             <PagerContent>
                 <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
-                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)"
-                    Class="pa-4" />
+                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)" Class="pa-4" />
             </PagerContent>
         </MudTable>
     </div>
@@ -104,10 +102,7 @@
 }
 
 @code {
-    [Parameter]
-    public string TagParameter { get; set; } = "";
-    [Parameter]
-    public string LevelParameter { get; set; } = "";
+    private string SelectedDifficulty { get; set; } = "All";
     public string SearchWord { get; set; }
     public TagsModel Tags { get; set; } = new();
     // prop to handle loading time view
