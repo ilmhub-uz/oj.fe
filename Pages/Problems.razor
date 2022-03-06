@@ -22,7 +22,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent2">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 m-auto">
                     <li class="nav-item dropdown d-lg-flex">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProblemPage" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -46,7 +46,7 @@
 
     @* Problem Grid Table *@
     <div class="col-lg-8 col-md-8">
-        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" Hover="true" Breakpoint="Breakpoint.Sm"
+        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="10" Hover="true" Breakpoint="Breakpoint.Sm"
             LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh></MudTh>
@@ -112,36 +112,24 @@
 }
 
 @code {
-    private string SelectedDifficulty { get; set; } = "All";
     public string SearchWord { get; set; }
+    private MudTable<ProblemTableData> _table;
     public TagsModel Tags { get; set; } = new();
+    
     // prop to handle loading time view
     public bool IsNotLoading { get; set; } = false;
-    // limit per page
-    private int Limit { get; set; } = 10;
-    // offset problems till nth page
-    private int Offset { get; set; }
-    // page number
-    private int Page { get; set; }
-    // number of pagination items
-    private int PaginationCount = 1;
-    private MudTable<ProblemTableData> _table;
     // raw API response
     public ProblemsModel Model { get; set; }
-    // problems model derived from raw API
-
-
     private Dictionary<string, StringValues> QueryDict { get; set; }
     private int PagerCount { get; set; }
     private string SelectedTag { get; set; }
-
     private IEnumerable<ProblemTableData> _elements = new List<ProblemTableData>();
 
     protected override async Task OnInitializedAsync()
     {
         IsNotLoading = false;
         StateHasChanged();
-        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+            Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
         IsNotLoading = true;
         StateHasChanged();
     }
@@ -167,21 +155,21 @@
     {
         IsNotLoading = false;
         StateHasChanged();
-        var httpResponse = await Http.GetAsync(QueryHelpers.AddQueryString($"http://oj.ilmhub.uz/api/problem", QueryDict));
-        var jsonString = await httpResponse.Content.ReadAsStringAsync();
-        Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-        PagerCount = (int)Math.Ceiling((int)Model?.Data?.Total / 10.0);
-        _elements = Model.Data.ProblemModels.Select(x =>
-        {
-            return new ProblemTableData
+            var httpResponse = await Http.GetAsync(QueryHelpers.AddQueryString($"http://oj.ilmhub.uz/api/problem", QueryDict));
+            var jsonString = await httpResponse.Content.ReadAsStringAsync();
+            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+            PagerCount = (int)Math.Ceiling((int)Model?.Data?.Total / 10.0);
+            _elements = Model.Data.ProblemModels.Select(x =>
             {
-                Id = x._Id,
-                Title = x.Title,
-                Level = x.Difficulty,
-                Total = x.SubmissionNumber,
-                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
-            };
-        }).ToList();
+                return new ProblemTableData
+                {
+                    Id = x._Id,
+                    Title = x.Title,
+                    Level = x.Difficulty,
+                    Total = x.SubmissionNumber,
+                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+                };
+            }).ToList();
         IsNotLoading = true;
         StateHasChanged();
     }

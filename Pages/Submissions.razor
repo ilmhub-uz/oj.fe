@@ -18,8 +18,8 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent3">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 m-auto d-flex justify-content-between">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWhose" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         @if(QueryDict.TryGetValue("myself", out var temp) && temp.ToString() == "1")
