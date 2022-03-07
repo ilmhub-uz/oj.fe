@@ -103,7 +103,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd Class="clm-row-small" DataLabel="When">@context.When.ToString("yyyy-m-d hh:mm:ss")</MudTd>
-        <MudTd Class="clm-row-small" DataLabel="Id">@context.Id.Substring(0, 12)</MudTd>
+        <MudTd Class="clm-row-small" DataLabel="Id"><a href="/submission?id=@context.Id">@context.Id.Substring(0, 12)</a></MudTd>
         @* STATUS *@
         @if (@context.StatusString == "Accepted")
         {
@@ -168,8 +168,8 @@
     private int PagerCount { get; set; }
     private MudTable<SubmissionTableData> _table;
     private IEnumerable<SubmissionTableData> _elements = new List<SubmissionTableData>();
-    public SubmissionsModel Model { get; set; }
-    public Dictionary<string, StringValues> QueryDict { get; set; }
+    private SubmissionsModel Model { get; set; }
+    private Dictionary<string, StringValues> QueryDict { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -310,6 +310,10 @@
         QueryDict["page"] = (StringValues)page.ToString();
         QueryDict["offset"] = (StringValues)((page - 1) * 12).ToString();
         NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+    }
+    private void OnProblemSelected(string id)
+    {
+        NavManager.NavigateTo("/submission?id=" + id);
     }
     public void Dispose()
     {
