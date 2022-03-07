@@ -1,0 +1,163 @@
+@page "/submission"
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using Models.CustomModels
+@using Models.SingleSubmission
+@using Newtonsoft.Json
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<div class="container mt-3">
+    <div class="d-flex container p-1 mb-3" style="flex-wrap: wrap; align-items: center; background-color: #eaf4fe; border: #d5e8fc;">
+        <div class="px-2"><i class="bi bi-info-circle-fill text-primary" style="font-size: 3rem;"></i></div>
+        <div class="px-sm-2 px-2 px-lg-0 px-md-0 pt-2">
+            <h3>Partial Accepted</h3>
+            <p>Time: 5957ms Memory: 9MB Lang: Python3 Author: abubakr0902</p>
+            @* <p>
+                <span class="mr-2">Time: @Model.Data.StatisticInfo.TimeCost</span>
+                <span class="mr-2">Memory: @Model.Data.StatisticInfo.MemoryCost</span>
+                <span class="mr-2">Memory: @Model.Data.StatisticInfo.MemoryCost</span>
+                <span class="mr-2">Language: @Model.Data.Language</span>
+                <span class="mr-2">Author: @Model.Data.Username</span>
+            </p> *@
+        </div>
+    </div>
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+            <tr>
+                <th class="text-center">ID</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Memory</th>
+                <th class="text-center">Time</th>
+                <th class="text-center">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var context in _elements)
+            {
+                <tr>
+                    <td class="text-center">@context.Id</td>
+                    @* STATUS *@
+                    @if (@context.Status == "Accepted")
+                    {
+                        <td class="text-center"><a class="btn btn-success btn-sm">@context.Status</a></td>
+                    }
+                    else if (@context.Status == "Time Limit Exceeded" || @context.Status == "Memory Limit Exceeded"
+                    || @context.Status == "Runtime Error" || @context.Status == "System Error" || @context.Status == "Wrong Answer")
+                    {
+                        <td class="text-center"><a class="btn btn-danger btn-sm">@context.Status</a></td>
+                    }
+                    else if (@context.Status == "Judging" || @context.Status == "Pending" || @context.Status == "Partial Accepted")
+                    {
+                        <td class="text-center"><a class="btn btn-primary btn-sm">@context.Status</a></td>
+                    }
+                    else if (@context.Status == "Compile Time Error")
+                    {
+                        <td class="text-center"><a class="btn btn-warning btn-sm">@context.Status</a></td>
+                    }
+                    else
+                    {
+                        <td class="text-center"><a class="btn btn-info btn-sm">@context.Status</a></td>
+                    }
+                    @* END OF STATUS *@
+                    <td class="text-center">@((int)Math.Ceiling(context.MemoryInBytes/1000000.0))MB</td>
+                    <td class="text-center">@context.TimeInMilliseconds</td>
+                    <td class="text-center">@context.Score</td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+    <div class="my-5 shadow-sm p-4" style="border-left: solid blue; font-size: 10px;">
+        @((MarkupString)Code)
+    </div>
+</div>
+@if (!IsNotLoading)
+{
+    <div id="cover-spin"></div>
+}
+@code {
+    private bool _loading { get; set; }
+    private bool IsNotLoading { get; set; } = true;
+    private string Code { get; set; } = string.Empty;
+    private MudTable<SubmissionResultTableData> _table;
+    private IEnumerable<SubmissionResultTableData> _elements = new List<SubmissionResultTableData>();
+    private SubmissionModel Model { get; set; }
+    private Dictionary<string, StringValues> QueryDict { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _elements = TakeMockData();
+        await ParseQuery();
+        Code = $@"<code>import itertools \ndef solveNQueens(n):\n        return [['.' * v + 'Q' + '.' * (n - v - 1) for v in c] for c in itertools.permutations(range(n))\n                if (len(set(i + v for i, v in enumerate(c))) == n) and\n                (len(set(i - v for i, v in enumerate(c))) == n)]\nn = int(input())\n\nwhile n:\n\ta = int(input())\n\tprint(len(solveNQueens(a)))\n\tn-=1</code>";
+        MakeAPICall();   
+    }
+    private void MakeAPICall()
+    {
+        // TODO: When Authorization added, Use this.
+
+        // IsNotLoading = false;
+        // StateHasChanged();
+        // var httpResponse = await Http.GetAsync(QueryHelpers.AddQueryString($"http://oj.ilmhub.uz/api/submission", QueryDict));
+        // var jsonString = await httpResponse.Content.ReadAsStringAsync();
+        // Model = JsonConvert.DeserializeObject<SubmissionModel>(jsonString);
+        // Console.WriteLine($"Text");
+        // Console.WriteLine($"Text");
+        // Console.WriteLine($"Text");
+        // Console.WriteLine(JsonConvert.SerializeObject(Model));
+        // Console.WriteLine($"Text");
+        // Console.WriteLine($"Text");
+        // Console.WriteLine($"Text");
+        // 
+        // _elements = Model.Data.Info.Data.Select(x =>
+        // {
+        //     return new SubmissionResultTableData
+        //     {
+        //         Id = x.TestCase,
+        //         Status = MapStatus(x.Result),
+        //         MemoryInBytes = x.Memory,
+        //         TimeInMilliseconds = x.CpuTime,
+        //         Score = x.Score
+        //     };
+        // }).ToList();
+        // Code = $"<code>{Model.Data.Code}</code>";
+        // IsNotLoading = true;
+        // StateHasChanged();
+    }
+    private Task ParseQuery()
+    {
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        QueryDict = QueryHelpers.ParseQuery(uri.Query);        
+        return Task.CompletedTask;
+    }
+    private string MapStatus(int status)
+    {
+        return status switch
+        {
+            0   => "Accepted",
+            1   => "Time Limit Exceeded",
+            3   => "Memory Limit Exceeded",
+            4   => "Runtime Error",
+            5   => "System Error",
+            6   => "Pending",
+            7   => "Judging",
+            8   => "Partial Accepted",
+            -2  => "Compile Time Error",
+            -1  => "Wrong Answer",
+            _   => string.Empty
+        };
+    }
+    private IEnumerable<SubmissionResultTableData> TakeMockData()
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            yield return new SubmissionResultTableData()
+            {
+                Id = (i+1).ToString(),
+                Status = MapStatus(new Random().Next(-2, 2)),
+                TimeInMilliseconds = 987,
+                MemoryInBytes = 2423983,
+                Score = 5
+            };
+        }
+    }
+}

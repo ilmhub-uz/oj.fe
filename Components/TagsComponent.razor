@@ -16,7 +16,14 @@
                 
                 @foreach (var tag in Model.Data)
                 {
-                    <a @onclick="() => OnTagClicked(tag.Name)" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                    @if(tag.Name == SelectedTag)
+                    {
+                        <a @onclick="() => OnTagClicked(tag.Name)" class="btn btn-light text-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                    }
+                    else
+                    {
+                        <a @onclick="() => OnTagClicked(tag.Name)" class="btn btn-outline-secondary m-2" style="border-radius: 20px;">@tag.Name</a>
+                    }
                 }
             }
         </div>
@@ -25,14 +32,13 @@
 
 @code {
     [Parameter]
+    public string SelectedTag { get; set; }
+    [Parameter]
+    public EventCallback<string> OnTagSelected { get; set; }
+    [Parameter]
     public oj.fe.Models.Tags.TagsModel Model { get; set; } = new() { Data = new List<Models.Tags.TagModel>() { new Models.Tags.TagModel() } };
-    
-    protected override void OnParametersSet()
+    public async Task OnTagClicked(string parameter)
     {
-        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");    
-    }
-    public void OnTagClicked(string parameter)
-    {
-        NavigationManager.NavigateTo("problems/tag/" + parameter);
+        await OnTagSelected.InvokeAsync(parameter);
     }
 }

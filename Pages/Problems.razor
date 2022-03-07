@@ -1,16 +1,15 @@
 @page "/problems"
 
 @* these two page implementations have not been completed yet. *@
-@page "/problems/tag/{TagParameter}"
-@page "/problems/level/{LevelParameter}"
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
 @using Models.CustomModels
 @using Models.Tags
 @using Models.Problems
 @using Newtonsoft.Json
 @using System.Globalization
-@using oj.fe.Components
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
+@inject NavigationManager NavManager
 
 <div class="row w-100 pt-2 pb-5">
     @* HEADER *@
@@ -18,37 +17,39 @@
         <div class="container-fluid py-3">
             <a class="navbar-brand" href="#">Problem List</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent2" aria-controls="navbarSupportedContent2" aria-expanded="false"
+                data-bs-target="#navbarSupportedContent2" aria-controls="navbarSupportedContent2" aria-expanded="true"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent2">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 m-auto">
+                    <li class="nav-item dropdown d-lg-flex">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProblemPage" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Difficulty
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownDifficulty">
+                            <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked(null)'>All</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Low")'>Low</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("Mid")'>Mid</a></li>
                             <li><a class="dropdown-item" @onclick='() => OnDifficultyLevelClicked("High")'>High</a></li>
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @bind="SearchWord">
-                    <button class="btn btn-success text-white" style="border-radius: 20px;" type="submit" @onclick="Search">Search</button>
-                </form>
+                <div class="d-flex">
+                <input class="form-control me-2" @onkeyup="@Enter" @bind="SearchWord" type="search" placeholder="Search by keyword..." aria-label="Search" style="border-radius: 20px;">
+                <a class="btn btn-success text-white" @onclick="OnSearchButtonClicked" style="border-radius: 20px;">Search</a>
+            </div>
             </div>
         </div>
     </nav>
 
     @* Problem Grid Table *@
     <div class="col-lg-8 col-md-8">
-        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="@Limit" Hover="true" Breakpoint="Breakpoint.Sm"
+        <MudTable @ref="@_table" Items="@_elements" RowsPerPage="10" Hover="true" Breakpoint="Breakpoint.Sm"
             LoadingProgressColor="Color.Info">
             <HeaderContent>
+                <MudTh></MudTh>
                 <MudTh>#</MudTh>
                 <MudTh>Title</MudTh>
                 <MudTh>Level</MudTh>
@@ -56,25 +57,33 @@
                 <MudTh>AC Rate</MudTh>
             </HeaderContent>
             <RowTemplate>
+                @if(@context.IsSolved)
+                {
+                    <MudTd><i class="bi bi-check text-success"></i></MudTd>
+                }
+                else
+                {
+                    <MudTd><i class="bi bi-dash-lg text-danger"></i></MudTd>
+                }
                 <MudTd DataLabel="Id"><a style="cursor: pointer;"
                         @onclick="() => OnProblemClicked(context.Id)">@context.Id</a></MudTd>
                 <MudTd DataLabel="Title"><a style="cursor: pointer;"
                         @onclick="() => OnProblemClicked(context.Id)">@context.Title</a></MudTd>
-                @if (context.Level == "Low")
+                @if (@context.Level == "Low")
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                    <MudTd DataLabel="Level"><a
                         class="btn btn-success text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
                 else if (context.Level == "Mid")
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                    <MudTd DataLabel="Level"><a
                         class="btn btn-primary text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
                 else
                 {
-                    <MudTd DataLabel="Level"><a href="/problems/level/@context.Level"
+                    <MudTd DataLabel="Level"><a
                         class="btn btn-warning text-white btn-sm"
                         style="opacity: 0.9; width: 50px; outline: none; border: none;">@context.Level</a></MudTd>
                 }
@@ -83,8 +92,7 @@
             </RowTemplate>
             <PagerContent>
                 <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
-                    SelectedChanged="PageChanged" Count="(int)Math.Ceiling((double)PaginationCount / (double)Limit)"
-                    Class="pa-4" />
+                    SelectedChanged="PageChanged" Count="PagerCount" Class="pa-4" />
             </PagerContent>
         </MudTable>
     </div>
@@ -92,7 +100,7 @@
     <div class="col-lg-4 col-md-4 py-4 border shadow-sm">
         @if (Tags != null)
         {
-            <TagsComponent Model="@Tags"></TagsComponent>
+            <TagsComponent Model="@Tags" OnTagSelected="@OnTagClicked" SelectedTag="@SelectedTag"></TagsComponent>
         }
     </div>
 </div>
@@ -104,98 +112,181 @@
 }
 
 @code {
-    [Parameter]
-    public string TagParameter { get; set; } = "";
-    [Parameter]
-    public string LevelParameter { get; set; } = "";
     public string SearchWord { get; set; }
+    private MudTable<ProblemTableData> _table;
     public TagsModel Tags { get; set; } = new();
+    
     // prop to handle loading time view
     public bool IsNotLoading { get; set; } = false;
-    // limit per page
-    private int Limit { get; set; } = 10;
-    // offset problems till nth page
-    private int Offset { get; set; }
-    // page number
-    private int Page { get; set; }
-    // number of pagination items
-    private int PaginationCount = 1;
-    private MudTable<ProblemTableData> _table;
     // raw API response
     public ProblemsModel Model { get; set; }
-    // problems model derived from raw API
+    private Dictionary<string, StringValues> QueryDict { get; set; }
+    private int PagerCount { get; set; }
+    private string SelectedTag { get; set; }
     private IEnumerable<ProblemTableData> _elements = new List<ProblemTableData>();
-    private IEnumerable<ProblemTableData> _elementsCopy = new List<ProblemTableData>();
 
     protected override async Task OnInitializedAsync()
     {
         IsNotLoading = false;
         StateHasChanged();
-        Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
+            Tags = await Http.GetFromJsonAsync<TagsModel>("http://oj.ilmhub.uz/api/problem/tags");
         IsNotLoading = true;
         StateHasChanged();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        IsNotLoading = false;
-        StateHasChanged();
+        await ParseQuery();
         await MakeAPICall();
-        IsNotLoading = true;
+        NavManager.LocationChanged += HandleLocationChanged;
+    }
+    async void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        await MakeAPICall();
         StateHasChanged();
-
-        // for further changes when implementing level and tags and search
-        _elementsCopy = _elements.Select(x => x).ToList();
     }
-    private async Task MakeAPICall(int offset = 0, int limit = 10, int page = 1)
+    private Task ParseQuery()
     {
-        var httpResponse = await Http.GetAsync($"http://oj.ilmhub.uz/api/problem?paging=true&offset={offset}&limit={limit}&page={page}");
-        var jsonString = await httpResponse.Content.ReadAsStringAsync();
-        Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
-        PaginationCount = Model.Data.Total;
-
-        _elements = Model.Data.ProblemModels.Select(x => 
-        {
-            return new ProblemTableData()
-            {
-                Id = x._Id,
-                Title = x.Title,
-                Level = x.Difficulty,
-                Total = x.SubmissionNumber,
-                ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
-            };
-        }).ToList();
-        // Console.WriteLine($"{JsonConvert.SerializeObject(Model)}");
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        QueryDict = QueryHelpers.ParseQuery(uri.Query);        
+        return Task.CompletedTask;
     }
-    private async Task PageChanged(int i)
+    private async Task MakeAPICall()
     {
-        Page = i;
-        Offset = Limit * (Page - 1);
         IsNotLoading = false;
         StateHasChanged();
-        await MakeAPICall(Offset, Limit, Page);
+            var httpResponse = await Http.GetAsync(QueryHelpers.AddQueryString($"http://oj.ilmhub.uz/api/problem", QueryDict));
+            var jsonString = await httpResponse.Content.ReadAsStringAsync();
+            Model = JsonConvert.DeserializeObject<ProblemsModel>(jsonString);
+            PagerCount = (int)Math.Ceiling((int)Model?.Data?.Total / 10.0);
+            _elements = Model.Data.ProblemModels.Select(x =>
+            {
+                return new ProblemTableData
+                {
+                    Id = x._Id,
+                    Title = x.Title,
+                    Level = x.Difficulty,
+                    Total = x.SubmissionNumber,
+                    ACRate = (Math.Round(x.AcceptedNumber * 100.0 / x.SubmissionNumber, 2) / 100).ToString("P", CultureInfo.InvariantCulture)
+                };
+            }).ToList();
         IsNotLoading = true;
         StateHasChanged();
-        Console.WriteLine($"PageChanged chaqirildi: " + i.ToString());
+    }
+    private void PageChanged(int page)
+    {
+        QueryDict["page"] = (StringValues)page.ToString();
+        QueryDict["offset"] = (StringValues)((page - 1) * 10).ToString();
+        RenewQuery();
+    }
+    private void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            OnSearchButtonClicked();
+        }
+    }
+    private void OnSearchButtonClicked()
+    {
+        if(SearchWord is not null || SearchWord != string.Empty)
+        {
+            if(QueryDict.ContainsKey("keyword"))
+            {
+                if(QueryDict["keyword"] != SearchWord)
+                {
+                    QueryDict["keyword"] = (StringValues)SearchWord;
+                    RenewQuery();
+                }
+            }
+            else
+            {
+                QueryDict.Add("keyword", (StringValues)SearchWord);
+                RenewQuery();
+            }
+        }
+        else
+        {
+            if(QueryDict.ContainsKey("keyword"))
+            {
+                QueryDict.Remove("keyword");
+            }
+            RenewQuery();
+        }
     }
 
     private void OnProblemClicked(string id)
     {
-        NavigationManager.NavigateTo("/problems/" + id);
+        NavManager.NavigateTo("/problems/" + id);
     }
     private void OnDifficultyLevelClicked(string level)
     {
-        NavigationManager.NavigateTo("/problems/level/" + level);
+        if(QueryDict.ContainsKey("difficulty") && QueryDict["difficulty"] == level)
+        {
+            return;
+        }
+        if(QueryDict.ContainsKey("difficulty"))
+        {
+            if(QueryDict["difficulty"] != level)
+            {
+                QueryDict["difficulty"] = (StringValues)level;
+                RenewQuery();
+            }
+        }
+        else
+        {
+            if(level != "All")
+            {
+                QueryDict.Add("difficulty", (StringValues)level);
+                RenewQuery();
+            }
+            else
+            {
+                QueryDict.Remove("difficulty");
+                RenewQuery();
+            }
+        }
     }
     private void OnTagClicked(string tag)
-    {
-        NavigationManager.NavigateTo("/problems/tag/" + tag);
+    {   
+        if(tag is null || tag == string.Empty)
+        {
+            if(QueryDict.ContainsKey("tag"))
+            {
+                QueryDict.Remove("tag");
+                RenewQuery();
+            }
+        }
+        else
+        {
+            if(QueryDict.ContainsKey("tag"))
+            {
+                if(QueryDict["tag"] == tag)
+                {
+                    QueryDict.Remove("tag");
+                    SelectedTag = string.Empty;
+                }
+                else
+                {
+                    QueryDict["tag"] = tag;
+                }
+                RenewQuery();
+            }
+            else
+            {
+                QueryDict["tag"] = (StringValues)tag;
+                RenewQuery();
+            }
+        }
+        @if(QueryDict.TryGetValue("tag", out var temp))
+        {
+            SelectedTag = temp.ToString() ?? string.Empty;
+        }
     }
-    private void Search()
+    private void RenewQuery()
     {
-        // not implemented yet
-
-        // at the end
-        SearchWord = string.Empty;
+        QueryDict["page"] = (StringValues)"1";
+        QueryDict["offset"] = (StringValues)"0";
+        QueryDict["limit"] = (StringValues)"10";
+        NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}problems", QueryDict));
     }
 }

@@ -60,7 +60,7 @@
     }
     private void OnProblemsClicked()
     {
-        NavigationManager.NavigateTo("/problems");
+        NavigationManager.NavigateTo("/problems?paging=true&offset=0&limit=10&page=1");
     }
     private void OnContestsClicked()
     {
@@ -68,7 +68,7 @@
     }
     private void OnStatusClicked()
     {
-        NavigationManager.NavigateTo("/status");
+        NavigationManager.NavigateTo("/submissions?myself=0&page=1&limit=12&offset=0");
     }
     
     private void OnACMRankClicked()
