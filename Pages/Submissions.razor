@@ -1,0 +1,322 @@
+@inherits ComponentBase
+@implements IDisposable
+@page "/submissions"
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using Models.CustomModels
+@using Models.Submissions
+@using Newtonsoft.Json
+
+@* NAVBAR *@
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Status</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent3"
+            aria-controls="navbarSupportedContent3" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent3">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 m-auto d-flex justify-content-between">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWhose" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        @if(QueryDict.TryGetValue("myself", out var temp) && temp.ToString() == "1")
+                        {
+                            <i class="bi bi-person-fill"></i>
+                            <p class="d-inline">Mine</p>
+                        }
+                        else
+                        {
+                            <i class="bi bi-people-fill mr-1"></i>
+                            <p class="d-inline">All</p>
+                        }
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownWhose">
+                        <li><a class="dropdown-item" @onclick="() => OnWhoseClicked(0)">All</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnWhoseClicked(1)">Mine</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        @if(!QueryDict.ContainsKey("result"))
+                        {
+                            <i class="bi bi-flag-fill"></i>
+                            <p class="d-inline">Status</p>
+                        }
+                        else
+                        {
+                            <i class="bi bi-flag-fill"></i>
+                            <p class="d-inline">@(MapStatus(int.Parse(QueryDict["result"])))</p>
+                        }
+                        @* <i class="bi bi-cloud-check-fill"></i> Status *@
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(null)">All</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(0)">Accepted</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(1)">Time Limit Exceeded</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(3)">Memory Limit Exceeded</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(4)">Runtime Error</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(5)">System Error</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(6)">Pending</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(7)">Judging</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(8)">Partial Accepted</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(-2)">Compile Error</a></li>
+                        <li><a class="dropdown-item" @onclick="() => OnStatusClicked(-1)">Wrong Answer</a></li>
+                    </ul>
+                </li>
+            </ul>
+            @* <form class="d-flex"> *@
+            <div class="d-flex">
+                <input class="form-control me-2" @onkeyup="@Enter" @bind="SearchWord" type="search" placeholder="Search Author" aria-label="Search" style="border-radius: 20px;">
+                <a class="btn btn-success text-white" @onclick="OnSearchButtonClicked" style="border-radius: 20px;">Search</a>
+            </div>
+            @* </form> *@
+        </div>
+    </div>
+</nav>
+@* NAVBAR END *@
+@* STATUS GRID *@
+<MudTable @ref="@_table" Items="@_elements" RowsPerPage="12" Hover="true" Breakpoint="Breakpoint.Sm"
+            Style="table table-responsive" LoadingProgressColor="Color.Info">
+    <ColGroup>
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>When</MudTh>
+        <MudTh>ID</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Problem</MudTh>
+        <MudTh>Time</MudTh>
+        <MudTh>Memory</MudTh>
+        <MudTh>Language</MudTh>
+        <MudTh>Author</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd Class="clm-row-small" DataLabel="When">@context.When.ToString("yyyy-m-d hh:mm:ss")</MudTd>
+        <MudTd Class="clm-row-small" DataLabel="Id"><a href="/submission?id=@context.Id">@context.Id.Substring(0, 12)</a></MudTd>
+        @* STATUS *@
+        @if (@context.StatusString == "Accepted")
+        {
+            <MudTd Class="clm-row-small" DataLabel="Status"><a class="btn btn-success btn-sm">@context.StatusString</a></MudTd>
+        }
+        else if (@context.StatusString == "Time Limit Exceeded" || @context.StatusString == "Memory Limit Exceeded"
+        || @context.StatusString == "Runtime Error" || @context.StatusString == "System Error" || @context.StatusString == "Wrong Answer")
+        {
+            <MudTd Class="clm-row-small" DataLabel="Status"><a class="btn btn-danger btn-sm">@context.StatusString</a></MudTd>
+        }
+        else if (@context.StatusString == "Judging" || @context.StatusString == "Pending" || @context.StatusString == "Partial Accepted")
+        {
+            <MudTd Class="clm-row-small" DataLabel="Status"><a class="btn btn-primary btn-sm">@context.StatusString</a></MudTd>
+        }
+        else if (@context.StatusString == "Compile Time Error")
+        {
+            <MudTd Class="clm-row-small" DataLabel="Status"><a class="btn btn-warning btn-sm">@context.StatusString</a></MudTd>
+        }
+        @* END OF STATUS *@
+        <MudTd Class="clm-row-small" DataLabel="ProblemNumber">@context.ProblemNumber</MudTd>
+
+        @* TIME *@
+        @if (@context.TimeCostInMilliseconds.HasValue)
+        {
+            <MudTd Class="clm-row-small" DataLabel="TimeCostInMilliseconds">@context.TimeCostInMilliseconds.Value ms</MudTd>
+        }
+        else
+        {
+            <MudTd Class="clm-row-small" DataLabel="TimeCostInMilliseconds">--</MudTd>
+        }
+        @* END OF TIME *@
+        @* MEMORY *@
+        @if (@context.MemoryCostInBytes.HasValue)
+        {
+            <MudTd Class="clm-row-small" DataLabel="MemoryCostInBytes">
+                @((int)Math.Ceiling(context.MemoryCostInBytes.Value/1000000.0))MB</MudTd>
+        }
+        else
+        {
+            <MudTd Class="clm-row-small" DataLabel="MemoryCostInBytes">--</MudTd>
+        }
+        @* END OF MEMORY *@
+        <MudTd Class="clm-row-small" DataLabel="Language">@context.Language</MudTd>
+        <MudTd Class="clm-row-small" DataLabel="Author"><a href="/userhome">@context.Author</a></MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudPagination ShowFirstButton="true" ShowLastButton="true" BoundaryCount="2" MiddleCount="3"
+                    SelectedChanged="PageChanged" Count="PagerCount" Class="pa-4" />
+    </PagerContent>
+</MudTable>
+@* STATUS GRID *@
+
+@* Visible if Loading *@
+@if (!IsNotLoading)
+{
+    <div id="cover-spin"></div>
+}
+@code
+{
+    public bool IsNotLoading { get; set; }
+    public string SearchWord { get; set; }
+    private int PagerCount { get; set; }
+    private MudTable<SubmissionTableData> _table;
+    private IEnumerable<SubmissionTableData> _elements = new List<SubmissionTableData>();
+    private SubmissionsModel Model { get; set; }
+    private Dictionary<string, StringValues> QueryDict { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ParseQuery();
+        await MakeAPICall();
+        NavManager.LocationChanged += HandleLocationChanged;
+    }
+
+    async void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        await MakeAPICall();
+        StateHasChanged();
+    }
+
+    private async Task MakeAPICall()
+    {
+        IsNotLoading = false;
+        StateHasChanged();
+        var httpResponse = await Http.GetAsync(QueryHelpers.AddQueryString($"http://oj.ilmhub.uz/api/submissions", QueryDict));
+        var jsonString = await httpResponse.Content.ReadAsStringAsync();
+        Model = JsonConvert.DeserializeObject<SubmissionsModel>(jsonString);
+        PagerCount = (int)Math.Ceiling((int)Model?.Data?.Total / 12.0);
+        _elements = Model.Data.Results.Select(x =>
+        {
+            return new SubmissionTableData
+            {
+                When = x.CreateTime.ToLocalTime(),
+                Id = x.Id,
+                StatusString = MapStatus(x.Status),
+                StatusInteger = x.Status,
+                Language = x.Language,
+                ProblemNumber = x.Problem,
+                Author = x.Username,
+                TimeCostInMilliseconds = x.StatisticInfo?.TimeCost,
+                MemoryCostInBytes = x.StatisticInfo?.MemoryCost,
+            };
+        }).ToList();
+        IsNotLoading = true;
+        StateHasChanged();
+    }
+    private Task ParseQuery()
+    {
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        QueryDict = QueryHelpers.ParseQuery(uri.Query);        
+        return Task.CompletedTask;
+    }
+
+    private string MapStatus(int status)
+    {
+        return status switch
+        {
+            0   => "Accepted",
+            1   => "Time Limit Exceeded",
+            3   => "Memory Limit Exceeded",
+            4   => "Runtime Error",
+            5   => "System Error",
+            6   => "Pending",
+            7   => "Judging",
+            8   => "Partial Accepted",
+            -2  => "Compile Time Error",
+            -1  => "Wrong Answer",
+            _   => string.Empty
+        };
+    }
+    private void OnWhoseClicked(int whose)
+    {
+        if(QueryDict.ContainsKey("myself"))
+        {
+            QueryDict["myself"] = (StringValues)whose.ToString();
+        }
+        else
+        {
+            QueryDict.Add("myself", (StringValues)whose.ToString());
+        }
+        NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+    }
+    private void OnStatusClicked(int? status)
+    {
+        if(status is not null)
+        {
+
+            if(QueryDict.ContainsKey("result"))
+            {
+                QueryDict["result"] = (StringValues)status.ToString();
+            }
+            else
+            {
+                QueryDict.Add("result", (StringValues)status.ToString());
+            }
+        }
+        else
+        {
+            if(QueryDict.ContainsKey("result"))
+            {
+                QueryDict.Remove("result");
+            }
+        }
+        NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+    }
+    private void OnSearchButtonClicked()
+    {
+        if(SearchWord is not null || SearchWord != string.Empty)
+        {
+            if(QueryDict.ContainsKey("username"))
+            {
+                if(QueryDict["username"] != SearchWord)
+                {
+                    QueryDict["username"] = (StringValues)SearchWord;
+                    NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+                }
+            }
+            else
+            {
+                QueryDict.Add("username", (StringValues)SearchWord);
+                Console.WriteLine($"{JsonConvert.SerializeObject(QueryDict)}");
+                
+                NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+            }
+        }
+        else
+        {
+            if(QueryDict.ContainsKey("username"))
+            {
+                QueryDict.Remove("username");
+            }
+            NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+        }
+    }
+    private void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            OnSearchButtonClicked();
+        }
+    }
+    private void PageChanged(int page)
+    {
+        QueryDict["page"] = (StringValues)page.ToString();
+        QueryDict["offset"] = (StringValues)((page - 1) * 12).ToString();
+        NavManager.NavigateTo(QueryHelpers.AddQueryString($"{NavManager.BaseUri}submissions", QueryDict));
+    }
+    private void OnProblemSelected(string id)
+    {
+        NavManager.NavigateTo("/submission?id=" + id);
+    }
+    public void Dispose()
+    {
+        NavManager.LocationChanged -= HandleLocationChanged;
+    }
+}

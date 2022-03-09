@@ -2,6 +2,8 @@ namespace oj.fe.Models.CustomModels;
 
 public class ProblemTableData
 {
+    public bool IsSolved { get; set; } = false;
+
     public string Id { get; set; }
     
     public string Title { get; set; }
