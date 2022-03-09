@@ -192,3 +192,145 @@ a, .btn-link {
     height: 400px;
     position: relative;
 }
+
+#problem-content .title[data-v-6e5e6c6e] {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 25px 0 8px;
+    color: #3091f2;
+}
+#problem-content .title[data-v-6e5e6c6e] {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 25px 0 8px;
+    color: #3091f2;
+}
+.markdown-body ol, .markdown-body p, .markdown-body ul {
+    font-size: 16px;
+    line-height: 24px;
+}
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body p {
+    margin-bottom: 15px;
+    padding: 0;
+}
+article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
+    margin: 0;
+    padding: 0;
+}
+*, :after, :before {
+    box-sizing: border-box;
+}
+#problem-content .title[data-v-6e5e6c6e] {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 25px 0 8px;
+    color: #3091f2;
+}
+.markdown-body ol, .markdown-body p, .markdown-body ul {
+    font-size: 16px;
+    line-height: 24px;
+}
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body p {
+    margin-bottom: 15px;
+    padding: 0;
+}
+article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
+    margin: 0;
+    padding: 0;
+}
+*, :after, :before {
+    box-sizing: border-box;
+}
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+* {
+    box-sizing: border-box;
+}
+.p{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+
+#problem-content .title[data-v-6e5e6c6e] {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 25px 0 8px;
+    color: #3091f2;
+}
+.markdown-body ol, .markdown-body p, .markdown-body ul {
+    font-size: 16px;
+    line-height: 24px;
+}
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body p {
+    margin-bottom: 15px;
+    padding: 0;
+}
+article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
+    margin: 0;
+    padding: 0;
+}
+*, :after, :before {
+    box-sizing: border-box;
+}
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+* {
+    box-sizing: border-box;
+}
+user agent stylesheet
+p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+.panel-body {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+.ivu-card {
+    background: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+    position: relative;
+    transition: all .2s ease-in-out;
+}
+
+#problem-content .sample pre[data-v-6e5e6c6e] {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+    border-style: solid;
+    background: transparent;
+}
+.markdown-body pre {
+    padding: 5px 10px;
+    white-space: pre-wrap;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background: #f8f8f9;
+    border: 1px dashed #e9eaec;
+}
+code, kbd, pre, samp {
+    font-family: Consolas,Menlo,Courier,monospace;
+}
+pre {
+    font-family: monospace,monospace;
+    font-size: 1em;
+}
+*, :after, :before {
+    box-sizing: border-box;
+}
+
+#problem-content .sample[data-v-6e5e6c6e] {
+    -ms-flex-align: stretch;
+    align-items: stretch;
+}
