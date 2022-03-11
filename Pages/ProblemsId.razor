@@ -15,6 +15,6 @@
         var jsonStringres = await response.Content.ReadAsStringAsync();
         var dtores = JsonConvert.DeserializeObject<ProblemData>(jsonStringres);
 
-        Console.WriteLine($"{JsonConvert.SerializeObject(dtores)} keldi");
+        @* Console.WriteLine($"{JsonConvert.SerializeObject(dtores)} keldi"); *@
     }
 }
